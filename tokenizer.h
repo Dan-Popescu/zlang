@@ -16,23 +16,40 @@ typedef enum{
     TOKEN_PUNCTUATION_RIGHT_BRACKET,
     TOKEN_IDENTIFIER, // variable names, function names
     TOKEN_KEYWORD, // reserved keywords in the language
-
-    TOKEN_END, // ; character
+    TOKEN_END, // ;character
 } TokenType;
+
+typedef enum{
+    UNSIGNED_CHAR,
+    UNSIGNED_SHORT,
+    UNSIGNED_INT,
+    UNSIGNED_LONG,
+    CHAR,
+    SHORT,
+    INT,
+    LONG,
+    FLOAT,
+    DOUBLE,
+    STRING
+} ValueType;
 
 
 typedef struct{
     TokenType type;
-//    double value; // value when type is number
-//    char operator; // operator when type is operator
-//    char delimiter;
-//    char value[64];
     char *value;
+    unsigned int valueType;
     long line;
     long column;
-} Token; // should probably use a union instead
+} Token;
 
-Token *get_next_token(char * statement);
-Token *evaluate_expr(char * expression);
+typedef struct{
+    unsigned int valueType;
+    void * value;
+} ExpressionValue;
+
+
+Token *get_next_token(char ** statement);
+ExpressionValue *evaluate_expr(char ** expression);
+ValueType get_token_value_type(const Token * token);
 
 #endif //ZLANG_TOKENIZER_H

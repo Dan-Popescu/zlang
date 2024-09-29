@@ -83,25 +83,30 @@ void repl(){
         char * idx = strrchr(expression, '\n');
         *idx = '\0';
 
-        // evaluate expression
-        // -> TODO function for executing a statement
+//        // evaluate expression
+//        // -> TODO function for executing a statement
 //        char * exprPtr = expression;
-//        Token * token = get_next_token(exprPtr);
+//        Token * token = get_next_token(&exprPtr);
 //        printf("\ntoken value is : %s", token->value);
 //        token = NULL;
-//        exprPtr++;
-//        token = get_next_token(exprPtr);
+//        token = get_next_token(&exprPtr);
 //        printf("\ntoken value is : %s", token->value);
 //        token = NULL;
-//        exprPtr++;
-//        token = get_next_token(exprPtr);
+//        token = get_next_token(&exprPtr);
 //        printf("\ntoken value is : %s", token->value);
-
-        Token * exprResult = evaluate_expr(expression);
-        printf("\n %lf", (atof)(exprResult->value));
-
 //        free(token->value);
 //        free(token);
+
+        ExpressionValue * exprResult = evaluate_expr(&expression);
+        printf("\nExpr result type : %u", exprResult->valueType);
+        if(exprResult->valueType==DOUBLE){
+            printf("\n %lf", (atof)(exprResult->value));
+        }else if(exprResult->valueType==LONG){
+            printf("\n %d", (atoi)(exprResult->value));
+        }
+
+
+
         free(exprResult);
 
     }
