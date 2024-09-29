@@ -1,0 +1,13 @@
+//
+// Created by popes on 29/09/2024.
+//
+
+#ifndef ZLANG_CONSTANTS_H
+#define ZLANG_CONSTANTS_H
+
+#define WRONG_MAIN_INPUT_FILE_EXTENSION 1000
+#define FILE_DOES_NOT_EXIST 1001
+#define VALID_INPUT 0
+#define MAX_EXPRESSION_LENGTH 1000
+
+#endif //ZLANG_CONSTANTS_H
