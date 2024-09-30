@@ -21,13 +21,15 @@
 
 Token * get_next_token(char ** statement){
 
-    printf("\n statement received in lexer : %s", *statement);
+    printf("\n\n statement received in lexer : %s", *statement);
 //    printf("\n *statement is : %c", **statement);
 
     while(**statement== ' ') (*statement)++; // Ignore white space
 
     Token * token = malloc(sizeof(Token));
     token->value = calloc(64, sizeof(char));
+    token->startPtr = *statement;
+
 
     if(isdigit(**statement)){
         // If it's a number
@@ -57,6 +59,7 @@ Token * get_next_token(char ** statement){
         (*statement)++;
     }
 
+    token->endPtr = *statement;
     return token;
 }
 
@@ -72,24 +75,30 @@ Token * get_next_token(char ** statement){
  * @return Pointer to a token structure if the the token is of the required tokenTye, otherwise NULL is returned
  */
 Token * consume_token(char **expression, TokenType tokenType){
-    printf("\n Token type required : %u", tokenType);
     Token * token = get_next_token(expression);
-    printf("\n Token value : %s", token->value);
+
     if(token->type == tokenType){
+        printf("\n token value in consume_token : %s", token->value);
+        return token;
     }else{
-        printf("\nError parsing input");
+        // make expression point to the first character of the last consumed token
+        // in order to be able to consume it again if needed
+        *expression = token->startPtr;
         return NULL;
     }
-    return token;
+
 }
 
 /**
+ *
+ * A factor is any numeric value of any type : INT, LONG, FLOAT, DOUBLE
+ * A factor is called as such because * and / operations have higher precedence than + and -
  *
  * @param expression is a pointer to an expression/statement string
  * @return
  */
 
-Token * term(char **expression){
+Token * factor(char **expression){
     // checks if token is of a type allowed for an operand
     // if it is, the token is returned and pointer increment to point to next token
     // else it returns NULL
@@ -98,60 +107,147 @@ Token * term(char **expression){
 }
 
 
+/**
+ *
+ * @param expression
+ * @return
+ */
+
+ExpressionValue * term(char **expression){
+    printf("\n term function called");
+    Token * factorToken = factor(expression);
+
+    if(factorToken == NULL){
+        printf("\n Error parsing input. Expected number.");
+        return NULL;
+    }
+
+    ExpressionValue * resultVal = malloc(sizeof(ExpressionValue));
+    resultVal->value = calloc(64, sizeof(char));
+    strcpy(resultVal->value ,factorToken->value);
+    resultVal->valueType = LONG;
+
+    Token * instructionEndToken = consume_token(expression, TOKEN_INSTRUCTION_END);
+    if(instructionEndToken != NULL){
+        return resultVal;
+    }
+
+    Token * operatorToken = consume_token(expression, TOKEN_OPERATOR);
+    if(operatorToken == NULL){
+        fprintf(stderr, "\nError parsing input. Expected operator but received something else.\n");
+        free(resultVal->value);
+        free(resultVal);
+        return NULL;
+    }
+
+    if(strcmp(operatorToken->value, "*") != 0 && strcmp(operatorToken->value, "/") != 0){
+//        *expression = operatorToken->startPtr;
+        *expression = factorToken->endPtr;
+        return resultVal;
+    }
+
+
+    while(operatorToken->type == TOKEN_OPERATOR &&
+            (strcmp(operatorToken->value, "*") == 0 || strcmp(operatorToken->value, "/") == 0))
+    {
+        printf("\n looping in while");
+        factorToken = consume_token(expression, TOKEN_NUMBER);
+        if(factorToken == NULL){
+            fprintf(stderr, "\nError parsing input. Number expected.");
+            return NULL;
+        }
+
+        if(strcmp(operatorToken->value,"*") == 0){
+            // perform the multiplication
+            multiplyNextOperand(resultVal, factorToken, LONG);
+        }else if(strcmp(operatorToken->value, "/") == 0){
+            divideByNextOperand(resultVal, factorToken, LONG);
+        }
+
+        instructionEndToken = consume_token(expression, TOKEN_INSTRUCTION_END);
+        if(instructionEndToken != NULL){
+            return resultVal;
+        }
+
+        operatorToken = consume_token(expression, TOKEN_OPERATOR);
+        if(strcmp(operatorToken->value, "*") != 0 && strcmp(operatorToken->value, "/") != 0){
+            *expression = factorToken->endPtr;
+            return resultVal;
+        }
+    }
+
+    return resultVal;
+}
+
 ExpressionValue * eval_expr(char ** expression){
 
     // Put the first element in result value
     // Get the first term @TODO to modify later, since expression can start with parenthesis as well
-    Token * currToken = term(expression);
-    if(currToken == NULL){
-        printf("\nError parsing input");
+    ExpressionValue * resultValue = term(expression);
+    printf("\nLine 156 : resultValue is : %s", resultValue->value);
+//    printf("\n current character in expression : %c", **expression);
+
+    Token * instructionEndToken = consume_token(expression, TOKEN_INSTRUCTION_END);
+    if(instructionEndToken != NULL && instructionEndToken->valueType==TOKEN_INSTRUCTION_END){
+        return resultValue;
     }
 
-    // Allocate memory for expression value to be returned
-    ExpressionValue * resultValue = malloc(sizeof(ExpressionValue));
-    resultValue->value = calloc(64, sizeof(char));
+    Token * currToken = consume_token(expression, TOKEN_OPERATOR);
+    if(currToken == NULL){
+        free(resultValue->value);
+        free(resultValue);
+    }
 
-    // Initialize value in expression to be returned to the value of the first term token
-    strcpy(resultValue->value, currToken->value);
-    resultValue->valueType = LONG;
+    // Allocate memory for storing next termValue in case there is one
+    ExpressionValue * termValue = malloc(sizeof(ExpressionValue));
+    termValue->value = calloc(64, sizeof(char));
+    termValue->valueType = LONG;
 
-    // printf for checking
-    printf("\n First result value is : %s", resultValue->value);
 
     // while there are term tokens (as represented by tokens of type TOKEN_NUMBER), keep performing operations
     // and updating the result value
-    while(currToken->type == TOKEN_NUMBER){
-        currToken = get_next_token(expression);
-
-        // if token is one of the tokens indicating end of instruction then return value;
-        if(currToken->type == TOKEN_INSTRUCTION_END){
-            return resultValue;
-        }
-
+    while(currToken->type == TOKEN_OPERATOR &&
+            (strcmp(currToken->value, "+") == 0 || strcmp(currToken->value, "-") == 0) )
+    {
+        printf("\niteration +");
         // else check that next token following a term token is the addition + operator and perform the operation if
         // it's the case
         if(currToken->type==TOKEN_OPERATOR && strcmp(currToken->value, "+") == 0){
-            currToken = term(expression);
+            printf("\n current character in expression : %c", **expression);
+            termValue = term(expression);
             // if there are no term tokens following the operator, then an error is thrown/displayed and program ends
-            if(currToken==NULL){
-                printf("\nError parsing input");
+            if(termValue==NULL){
+                printf("\nLne 198 : Error parsing input");
                 return NULL;
             }
-            addNextOperand(resultValue, currToken, LONG);
-            printf("\n result value : %s", resultValue->value);
+            printf("\n term value : %s", termValue);
+            addNextOperand(resultValue, termValue, LONG);
+            printf("\n resultValue is : %s\n", resultValue->value);
         }
         // else check if the next token following a term token is the minus - operator and perform the operation if
         // it's the case
         else if(currToken->type==TOKEN_OPERATOR && strcmp(currToken->value, "-") == 0){
-            currToken = term(expression);
+            termValue = term(expression);
             // if there are no term tokens following the operator, then an error is thrown/displayed and program ends
-            if(currToken==NULL){
+            if(termValue==NULL){
                 printf("\nError parsing input");
                 return NULL;
             }
-            subtractNextOperand(resultValue, currToken, LONG);
+            subtractNextOperand(resultValue, termValue, LONG);
             printf("\n result value : %s", resultValue->value);
         }
+            currToken = consume_token(expression, TOKEN_OPERATOR);
+            if(currToken == NULL){
+                return resultValue;
+            }
+            if(currToken!=NULL){
+                printf("\nLine 216 :  current token value : %s", currToken->value);
+            }
+            instructionEndToken = consume_token(expression, TOKEN_INSTRUCTION_END);
+            if(instructionEndToken != NULL){
+                return resultValue;
+            }
+
     }
 
     // If we got here, then no end of statement was found => an error should be displayed
@@ -163,28 +259,30 @@ ExpressionValue * eval_expr(char ** expression){
 }
 
 
-void addNextOperand(ExpressionValue * resultValue, Token * nextTokenOperand, ValueType returnType){
+void addNextOperand(ExpressionValue * resultValue, ExpressionValue * termValue, ValueType returnType){
     if(returnType == LONG || returnType == INT){
         long prevVal = (strtol)(resultValue->value, NULL, 10);
-        long currVal = (strtol)(nextTokenOperand->value, NULL, 10);
+        long currVal = (strtol)(termValue->value, NULL, 10);
         if(prevVal == 0 || currVal == 0){
-            fprintf(stderr, "\ntokenizer.c Line 171 : Conversion error from string to long");
+            fprintf(stderr, "\ntokenizer.c Line 239 : Conversion error from string to long");
         }
         long newVal = prevVal + currVal;
         sprintf(resultValue->value, "%ld", newVal);
     }else if(returnType == DOUBLE || returnType == FLOAT){
         long prevVal = (strtod)(resultValue->value, NULL);
-        long currVal = (strtod)(nextTokenOperand->value, NULL);
-        fprintf(stderr, "\ntokenizer.c Line 178 : Conversion error from string to double");
+        long currVal = (strtod)(termValue->value, NULL);
+        fprintf(stderr, "\ntokenizer.c Line 246 : Conversion error from string to double");
         long newVal = prevVal + currVal;
         sprintf(resultValue->value, "%lf", newVal);
     }
 }
 
-void subtractNextOperand(ExpressionValue * resultValue, Token * nextTokenOperand, ValueType returnType){
+
+
+void subtractNextOperand(ExpressionValue * resultValue, ExpressionValue * termValue, ValueType returnType){
     if(returnType == LONG || returnType == INT){
         long prevVal = (strtol)(resultValue->value, NULL, 10);
-        long currVal = (strtol)(nextTokenOperand->value, NULL, 10);
+        long currVal = (strtol)(termValue->value, NULL, 10);
         if(prevVal == 0 || currVal == 0){
             fprintf(stderr, "\ntokenizer.c Line 189 : Conversion error from string to long");
         }
@@ -192,131 +290,52 @@ void subtractNextOperand(ExpressionValue * resultValue, Token * nextTokenOperand
         sprintf(resultValue->value, "%ld", newVal);
     }else if(returnType == DOUBLE || returnType == FLOAT){
         long prevVal = (strtod)(resultValue->value, NULL);
-        long currVal = (strtod)(nextTokenOperand->value, NULL);
+        long currVal = (strtod)(termValue->value, NULL);
         if(prevVal == 0 || currVal == 0){
             fprintf(stderr, "\ntokenizer.c Line 197 : Conversion error from string to double");
         }
-        long newVal = prevVal - currVal;
+        double newVal = prevVal - currVal;
+        sprintf(resultValue->value, "%lf", newVal);
+    }
+}
+
+void multiplyNextOperand(ExpressionValue * resultValue, Token * nextTokenOperand, ValueType returnType){
+    if(returnType == LONG || returnType == INT){
+        long prevVal = (strtol)(resultValue->value, NULL, 10);
+        long currVal = (strtol)(nextTokenOperand->value, NULL, 10);
+        if(prevVal == 0 || currVal == 0){
+            fprintf(stderr, "\ntokenizer.c Line 247 : Conversion error from string to long");
+        }
+        long newVal = prevVal * currVal;
+        sprintf(resultValue->value, "%ld", newVal);
+    }else if(returnType == DOUBLE || returnType == FLOAT){
+        long prevVal = (strtod)(resultValue->value, NULL);
+        long currVal = (strtod)(nextTokenOperand->value, NULL);
+        fprintf(stderr, "\ntokenizer.c Line 254 : Conversion error from string to double");
+        double newVal = prevVal * currVal;
+        sprintf(resultValue->value, "%lf", newVal);
+    }
+}
+
+void divideByNextOperand(ExpressionValue * resultValue, Token * nextTokenOperand, ValueType returnType){
+    if(returnType == LONG || returnType == INT){
+        long prevVal = (strtol)(resultValue->value, NULL, 10);
+        long currVal = (strtol)(nextTokenOperand->value, NULL, 10);
+        if(prevVal == 0 || currVal == 0){
+            fprintf(stderr, "\ntokenizer.c Line 247 : Conversion error from string to long");
+        }
+        long newVal = prevVal / currVal;
+        sprintf(resultValue->value, "%ld", newVal);
+    }else if(returnType == DOUBLE || returnType == FLOAT){
+        long prevVal = (strtod)(resultValue->value, NULL);
+        long currVal = (strtod)(nextTokenOperand->value, NULL);
+        fprintf(stderr, "\ntokenizer.c Line 254 : Conversion error from string to double");
+        double newVal = prevVal / currVal;
         sprintf(resultValue->value, "%lf", newVal);
     }
 }
 
 
-
-
-//unsigned char is_operator(const Token * token){
-//    char * value = token->value;
-//    switch(*value){
-//        case '+':
-//            return 1;
-//        case '-':
-//            return 1;
-//        case '/':
-//            return 1;
-//        case '*':
-//            return 1;
-//    }
-//    if( *value='+' )
-//}
-
-
-
-
-
-ExpressionValue * evaluate_expr(char ** expression){
-    char ** exprPtr = expression;
-    Token * left = get_next_token(exprPtr);
-    printf("\nleft operand token value is : %s", left->value);
-    Token * op = get_next_token(exprPtr);
-    printf("\noperator token value is : %s", op->value);
-    Token * right = get_next_token(exprPtr);
-    printf("\nright token value is : %s", right->value);
-
-//    Token *exprResult = malloc(sizeof(Token));
-    ExpressionValue  *exprResult = malloc(sizeof(ExpressionValue));
-
-
-    unsigned char lValType = get_token_value_type(left);
-    unsigned char opValType = get_token_value_type(op);
-    unsigned char rValType = get_token_value_type(right);
-
-    if(left->type==TOKEN_NUMBER && op->type==TOKEN_OPERATOR && right->type==TOKEN_NUMBER){
-
-        if(lValType == LONG && rValType==LONG){
-            printf("\nlValType == LONG && rValType==LONG");
-            long lVal = (atoi)(left->value);
-            char opVal = (char)(*op->value);
-            long rVal = (atoi)(right->value);
-            printf("\n lVal is : %ld", lVal);
-            printf("\n opVal is : %c", opVal);
-            printf("\n rVal is : %ld", rVal);
-            printf("\n lVal %c rVal is : %ld", opVal, lVal + rVal);
-            if(opVal=='+'){
-//                exprResult->type = TOKEN_NUMBER;
-                exprResult->valueType = LONG;
-                exprResult->value = calloc(64, sizeof(char));
-                sprintf(exprResult->value, "%ld" , lVal + rVal);
-            }else if(opVal=='-'){
-//                exprResult->type = TOKEN_NUMBER;
-                exprResult->valueType = LONG;
-                exprResult->value = calloc(64, sizeof(char));
-                sprintf(exprResult->value, "%ld" , lVal - rVal);
-            }
-            else if(opVal=='*'){
-//                exprResult->type = TOKEN_NUMBER;
-                exprResult->valueType = LONG;
-                exprResult->value = calloc(64, sizeof(char));
-                sprintf(exprResult->value, "%ld" , lVal * rVal);
-            }
-            else if(opVal=='/'){
-//                exprResult->type = TOKEN_NUMBER;
-                exprResult->valueType = LONG;
-                exprResult->value = calloc(64, sizeof(char));
-                sprintf(exprResult->value, "%ld" , lVal / rVal);
-            }
-
-//            printf("\n lVal %c rVal is : %ld", opVal, (atof)(exprResult->value));
-
-        }else if(lValType == DOUBLE && rValType && DOUBLE){
-
-            double lVal = (atof)(left->value);
-            char opVal = (char)(*op->value);
-            double rVal = (atof)(right->value);
-            printf("\n lVal is : %lf", lVal);
-            printf("\n opVal is : %c", opVal);
-            printf("\n rVal is : %lf", rVal);
-            if(opVal=='+'){
-//                exprResult->type = TOKEN_NUMBER;
-                exprResult->valueType = DOUBLE;
-                exprResult->value = calloc(64, sizeof(char));
-                sprintf(exprResult->value, "%lf" , lVal + rVal);
-            }else if(opVal=='-'){
-//                exprResult->type = TOKEN_NUMBER;
-                exprResult->valueType = DOUBLE;
-                exprResult->value = calloc(64, sizeof(char));
-                sprintf(exprResult->value, "%lf" , lVal - rVal);
-            }
-            else if(opVal=='*'){
-//                exprResult->type = TOKEN_NUMBER;
-                exprResult->valueType = DOUBLE;
-                exprResult->value = calloc(64, sizeof(char));
-                sprintf(exprResult->value, "%lf" , lVal * rVal);
-            }
-            else if(opVal=='/'){
-//                exprResult->type = TOKEN_NUMBER;
-                exprResult->valueType = DOUBLE;
-                exprResult->value = calloc(64, sizeof(char));
-                sprintf(exprResult->value, "%lf" , lVal / rVal);
-            }
-
-//            printf("\n lVal %c rVal is : %lf", opVal, exprResult->value);
-        }
-    }
-
-
-
-    return exprResult;
-}
 
 
 ValueType get_token_value_type(const Token * token){

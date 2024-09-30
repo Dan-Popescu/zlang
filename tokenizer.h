@@ -38,6 +38,8 @@ typedef struct{
     TokenType type;
     char *value;
     unsigned int valueType;
+    char * startPtr;
+    char * endPtr;
     long line;
     long column;
 } Token;
@@ -52,7 +54,9 @@ Token *get_next_token(char ** statement);
 ExpressionValue *evaluate_expr(char ** expression);
 ExpressionValue *  eval_expr(char ** expression);
 ValueType get_token_value_type(const Token * token);
-void addNextOperand(ExpressionValue * resultValue, Token * nextTokenOperand, ValueType returnType);
-void subtractNextOperand(ExpressionValue * resultValue, Token * nextTokenOperand, ValueType returnType);
+void addNextOperand(ExpressionValue * resultValue, ExpressionValue * termValue, ValueType returnType);
+void subtractNextOperand(ExpressionValue * resultValue, ExpressionValue * termValue, ValueType returnType);
+void multiplyNextOperand(ExpressionValue * resultValue, Token * nextTokenOperand, ValueType returnType);
+void divideByNextOperand(ExpressionValue * resultValue, Token * nextTokenOperand, ValueType returnType);
 
 #endif //ZLANG_TOKENIZER_H
