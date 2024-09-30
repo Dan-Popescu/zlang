@@ -97,17 +97,17 @@ void repl(){
 //        free(token->value);
 //        free(token);
 
-        ExpressionValue * exprResult = evaluate_expr(&expression);
+        ExpressionValue * exprResult = eval_expr(&expression);
+        if(exprResult == NULL){
+            return;
+        }
         printf("\nExpr result type : %u", exprResult->valueType);
         if(exprResult->valueType==DOUBLE){
             printf("\n %lf", (atof)(exprResult->value));
         }else if(exprResult->valueType==LONG){
-            printf("\n %d", (atoi)(exprResult->value));
+            printf("\n %ld", (atol)(exprResult->value));
         }
 
-
-
         free(exprResult);
-
     }
 }

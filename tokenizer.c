@@ -8,11 +8,18 @@
 #include <string.h>
 #include "tokenizer.h"
 
+
+/**
+ * This function performs the role of a lexical analyser / lexer / tokenizer
+ * It's responsible for breaking a statement into tokens, one token at a time
+ * Once a token is extracted, statement pointer is updated to point to the next position
+ * after the end of the token extracted
+ *
+ * @param statement Pointer to position in statement string, from which next token is to be extracted
+ * @return Token structure of the token at position pointed by the statement pointer
+ */
+
 Token * get_next_token(char ** statement){
-    /*
-     * This function performs the role of a lexical analyser / lexer / tokenizer
-     * It's responsible for breaking a statement into tokens, one character at a time
-    */
 
     printf("\n statement received in lexer : %s", *statement);
 //    printf("\n *statement is : %c", **statement);
@@ -43,10 +50,177 @@ Token * get_next_token(char ** statement){
         token->value[0] = **statement;
         token->value[1] = '\0';
         (*statement)++;
+    }else if(**statement == ';'){
+        token->type = TOKEN_INSTRUCTION_END;
+        token->value[0] = **statement;
+        token->value[1] = '\0';
+        (*statement)++;
     }
 
     return token;
 }
+
+
+/**
+ *@brief This function takes in a pointer to statement or expression string and a required token type
+ * The next token in the statement/expression is extracted and checked against the required token type
+ * If the required token type is satisfied then the token is returned, otherwise NULL is returned to signal
+ * that there is no match
+ *
+ * @param expression
+ * @param tokenType
+ * @return Pointer to a token structure if the the token is of the required tokenTye, otherwise NULL is returned
+ */
+Token * consume_token(char **expression, TokenType tokenType){
+    printf("\n Token type required : %u", tokenType);
+    Token * token = get_next_token(expression);
+    printf("\n Token value : %s", token->value);
+    if(token->type == tokenType){
+    }else{
+        printf("\nError parsing input");
+        return NULL;
+    }
+    return token;
+}
+
+/**
+ *
+ * @param expression is a pointer to an expression/statement string
+ * @return
+ */
+
+Token * term(char **expression){
+    // checks if token is of a type allowed for an operand
+    // if it is, the token is returned and pointer increment to point to next token
+    // else it returns NULL
+    Token * token = consume_token(expression, TOKEN_NUMBER);
+    return token;
+}
+
+
+ExpressionValue * eval_expr(char ** expression){
+
+    // Put the first element in result value
+    // Get the first term @TODO to modify later, since expression can start with parenthesis as well
+    Token * currToken = term(expression);
+    if(currToken == NULL){
+        printf("\nError parsing input");
+    }
+
+    // Allocate memory for expression value to be returned
+    ExpressionValue * resultValue = malloc(sizeof(ExpressionValue));
+    resultValue->value = calloc(64, sizeof(char));
+
+    // Initialize value in expression to be returned to the value of the first term token
+    strcpy(resultValue->value, currToken->value);
+    resultValue->valueType = LONG;
+
+    // printf for checking
+    printf("\n First result value is : %s", resultValue->value);
+
+    // while there are term tokens (as represented by tokens of type TOKEN_NUMBER), keep performing operations
+    // and updating the result value
+    while(currToken->type == TOKEN_NUMBER){
+        currToken = get_next_token(expression);
+
+        // if token is one of the tokens indicating end of instruction then return value;
+        if(currToken->type == TOKEN_INSTRUCTION_END){
+            return resultValue;
+        }
+
+        // else check that next token following a term token is the addition + operator and perform the operation if
+        // it's the case
+        if(currToken->type==TOKEN_OPERATOR && strcmp(currToken->value, "+") == 0){
+            currToken = term(expression);
+            // if there are no term tokens following the operator, then an error is thrown/displayed and program ends
+            if(currToken==NULL){
+                printf("\nError parsing input");
+                return NULL;
+            }
+            addNextOperand(resultValue, currToken, LONG);
+            printf("\n result value : %s", resultValue->value);
+        }
+        // else check if the next token following a term token is the minus - operator and perform the operation if
+        // it's the case
+        else if(currToken->type==TOKEN_OPERATOR && strcmp(currToken->value, "-") == 0){
+            currToken = term(expression);
+            // if there are no term tokens following the operator, then an error is thrown/displayed and program ends
+            if(currToken==NULL){
+                printf("\nError parsing input");
+                return NULL;
+            }
+            subtractNextOperand(resultValue, currToken, LONG);
+            printf("\n result value : %s", resultValue->value);
+        }
+    }
+
+    // If we got here, then no end of statement was found => an error should be displayed
+    free(resultValue->value);
+    free(resultValue);
+    fprintf(stderr, "\nNo end of statement found. You forgot the the semi-colon at the end of your "
+                    "statement.");
+    return NULL;
+}
+
+
+void addNextOperand(ExpressionValue * resultValue, Token * nextTokenOperand, ValueType returnType){
+    if(returnType == LONG || returnType == INT){
+        long prevVal = (strtol)(resultValue->value, NULL, 10);
+        long currVal = (strtol)(nextTokenOperand->value, NULL, 10);
+        if(prevVal == 0 || currVal == 0){
+            fprintf(stderr, "\ntokenizer.c Line 171 : Conversion error from string to long");
+        }
+        long newVal = prevVal + currVal;
+        sprintf(resultValue->value, "%ld", newVal);
+    }else if(returnType == DOUBLE || returnType == FLOAT){
+        long prevVal = (strtod)(resultValue->value, NULL);
+        long currVal = (strtod)(nextTokenOperand->value, NULL);
+        fprintf(stderr, "\ntokenizer.c Line 178 : Conversion error from string to double");
+        long newVal = prevVal + currVal;
+        sprintf(resultValue->value, "%lf", newVal);
+    }
+}
+
+void subtractNextOperand(ExpressionValue * resultValue, Token * nextTokenOperand, ValueType returnType){
+    if(returnType == LONG || returnType == INT){
+        long prevVal = (strtol)(resultValue->value, NULL, 10);
+        long currVal = (strtol)(nextTokenOperand->value, NULL, 10);
+        if(prevVal == 0 || currVal == 0){
+            fprintf(stderr, "\ntokenizer.c Line 189 : Conversion error from string to long");
+        }
+        long newVal = prevVal - currVal;
+        sprintf(resultValue->value, "%ld", newVal);
+    }else if(returnType == DOUBLE || returnType == FLOAT){
+        long prevVal = (strtod)(resultValue->value, NULL);
+        long currVal = (strtod)(nextTokenOperand->value, NULL);
+        if(prevVal == 0 || currVal == 0){
+            fprintf(stderr, "\ntokenizer.c Line 197 : Conversion error from string to double");
+        }
+        long newVal = prevVal - currVal;
+        sprintf(resultValue->value, "%lf", newVal);
+    }
+}
+
+
+
+
+//unsigned char is_operator(const Token * token){
+//    char * value = token->value;
+//    switch(*value){
+//        case '+':
+//            return 1;
+//        case '-':
+//            return 1;
+//        case '/':
+//            return 1;
+//        case '*':
+//            return 1;
+//    }
+//    if( *value='+' )
+//}
+
+
+
 
 
 ExpressionValue * evaluate_expr(char ** expression){

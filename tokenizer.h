@@ -16,7 +16,7 @@ typedef enum{
     TOKEN_PUNCTUATION_RIGHT_BRACKET,
     TOKEN_IDENTIFIER, // variable names, function names
     TOKEN_KEYWORD, // reserved keywords in the language
-    TOKEN_END, // ;character
+    TOKEN_INSTRUCTION_END, // ;character
 } TokenType;
 
 typedef enum{
@@ -50,6 +50,9 @@ typedef struct{
 
 Token *get_next_token(char ** statement);
 ExpressionValue *evaluate_expr(char ** expression);
+ExpressionValue *  eval_expr(char ** expression);
 ValueType get_token_value_type(const Token * token);
+void addNextOperand(ExpressionValue * resultValue, Token * nextTokenOperand, ValueType returnType);
+void subtractNextOperand(ExpressionValue * resultValue, Token * nextTokenOperand, ValueType returnType);
 
 #endif //ZLANG_TOKENIZER_H
