@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <string.h>
-//#include <windows.h>
 #include <signal.h>
 #include "constants.h"
-#include "tokenizer.h"
 #include "stdlib.h"
+#include "lexer.h"
+#include "interpreter.h"
 
 unsigned short validate_file_input(char * filepath);
 void repl();
@@ -16,10 +16,45 @@ void handle_sigint(int sig){
     running = 0;
 }
 
+
+
+
 int main(int argc, char ** argv) {
 
     if(argc == 1){
-        repl();
+//        repl();
+        char *expression = calloc(MAX_EXPRESSION_LENGTH, sizeof(char));
+
+        // attach an even handler to SIGINT ( event emitted when pressing Ctrl + C)
+        signal(SIGINT, handle_sigint);
+
+        // no file input was provided, behave as REPL
+        while(running) {
+            printf("\n>>> ");
+            if(fgets(expression, MAX_EXPRESSION_LENGTH, stdin) == NULL){
+                break;
+            };
+
+            // check is user wants to exit either by typing exit
+            if (strncmp(expression, "exit", 4) == 0 || strncmp(expression, "exit;", 5) == 0) {
+                running = 0;
+            }
+
+            // if no exit was demanded by user, remove the null character from the string expression before evaluation
+            char *idx = strrchr(expression, '\n');
+            *idx = '\0';
+
+            Lexer * lexer = create_lexer(expression);
+            Interpreter * interpreter = create_interpreter(lexer);
+            int result = expr(interpreter);
+            printf("\n%d",result);
+
+            // Free memory
+            free(interpreter->current_token);
+            free(interpreter);
+            free(lexer->text);
+            free(lexer);
+        }
 
     }else if(argc == 2){
         // check if file input is in correct format and file exists
@@ -61,53 +96,41 @@ unsigned short validate_file_input(char * filepath){
 
 }
 
-
-void repl(){
-//    char expression[MAX_EXPRESSION_LENGTH];
-    char *expression = calloc(MAX_EXPRESSION_LENGTH, sizeof(char));
-
-    // attach an even handler to SIGINT ( event emitted when pressing Ctrl + C)
-    signal(SIGINT, handle_sigint);
-
-    // no file input was provided, behave as REPL
-    while(running){
-        printf("\n>>> ");
-        fgets(expression, MAX_EXPRESSION_LENGTH, stdin);
-
-        // check is user wants to exit either by typing exit
-        if(strncmp(expression, "exit", 4) == 0 || strncmp(expression, "exit;", 5) == 0){
-            running = 0;
-        }
-
-        // if no exit was demanded by user, remove the null character from the string expression before evaluation
-        char * idx = strrchr(expression, '\n');
-        *idx = '\0';
-
-//        // evaluate expression
-//        // -> TODO function for executing a statement
-//        char * exprPtr = expression;
-//        Token * token = get_next_token(&exprPtr);
-//        printf("\ntoken value is : %s", token->value);
-//        token = NULL;
-//        token = get_next_token(&exprPtr);
-//        printf("\ntoken value is : %s", token->value);
-//        token = NULL;
-//        token = get_next_token(&exprPtr);
-//        printf("\ntoken value is : %s", token->value);
-//        free(token->value);
-//        free(token);
-
-        ExpressionValue * exprResult = eval_expr(&expression);
-        if(exprResult == NULL){
-            return;
-        }
-        printf("\nExpr result type : %u", exprResult->valueType);
-        if(exprResult->valueType==DOUBLE){
-            printf("\n %lf", (atof)(exprResult->value));
-        }else if(exprResult->valueType==LONG){
-            printf("\n %ld", (atol)(exprResult->value));
-        }
-
-        free(exprResult);
-    }
-}
+//
+//void repl(){
+////    char expression[MAX_EXPRESSION_LENGTH];
+//    char *expression = calloc(MAX_EXPRESSION_LENGTH, sizeof(char));
+//
+//    // attach an even handler to SIGINT ( event emitted when pressing Ctrl + C)
+//    signal(SIGINT, handle_sigint);
+//
+//    // no file input was provided, behave as REPL
+//    while(running){
+//        printf("\n>>> ");
+//        if(fgets(expression, MAX_EXPRESSION_LENGTH, stdin) == NULL){
+//            break;
+//        };
+//
+//        // check is user wants to exit either by typing exit
+//        if(strncmp(expression, "exit", 4) == 0 || strncmp(expression, "exit;", 5) == 0){
+//            running = 0;
+//        }
+//
+//        // if no exit was demanded by user, remove the carriage return character from the string expression before evaluation
+//        char * idx = strrchr(expression, '\n');
+//        *idx = '\0';
+//
+//        ExpressionValue * exprResult = eval_expr(&expression);
+//        if(exprResult == NULL){
+//            return;
+//        }
+//        printf("\nExpr result type : %u", exprResult->valueType);
+//        if(exprResult->valueType==DOUBLE){
+//            printf("\n %lf", (atof)(exprResult->value));
+//        }else if(exprResult->valueType==LONG){
+//            printf("\n %ld", (atol)(exprResult->value));
+//        }
+//
+//        free(exprResult);
+//    }
+//}
