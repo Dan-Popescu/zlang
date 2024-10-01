@@ -48,14 +48,19 @@ int main(int argc, char ** argv) {
             *idx = '\0';
 
             Lexer * lexer = create_lexer(expression);
-            Interpreter * interpreter = create_interpreter(lexer);
-            int result = expr(interpreter);
-            printf("\n%d",result);
+            Parser * parser = create_parser(lexer);
+            Interpreter * interpreter = create_interpreter(parser);
+
+            ASTNode * tree = expr(parser);
+
+            int value = interpret(tree);
+            printf("\n Value is : %d", value);
 
             // Free memory
-            free(interpreter->current_token);
-            free(interpreter->lexer->text);
-            free(interpreter->lexer);
+            free(interpreter->parser->current_token);
+            free(interpreter->parser->lexer->text);
+            free(interpreter->parser->lexer);
+            free(interpreter->parser);
             free(interpreter);
         }
 

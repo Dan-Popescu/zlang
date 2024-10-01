@@ -8,20 +8,39 @@
 #ifndef ZLANG_ABSTRACT_SYNTAX_TREE_H
 #define ZLANG_ABSTRACT_SYNTAX_TREE_H
 
+typedef enum {
+    NUMBER_NODE,
+    BINARY_OPERATOR_NODE
+} NodeType;
 
-typedef struct{
+typedef struct NumberNode NumberNode;
+typedef struct BinaryOpNode BinaryOpNode;
+typedef struct ASTNode ASTNode;
 
-} AST;
+typedef union{
+    NumberNode * numNode;
+    BinaryOpNode * binaryOpNode;
+} NodeUnion;
 
-typedef struct{
-    Token token;
-    void * value;
-} NumberNode;
+struct ASTNode {
+    NodeType type;
+    NodeUnion * node;
+};
 
-typedef struct{
-    NumberNode left;
-    Token operator;
-    NumberNode right;
-} BinaryOp;
+
+struct NumberNode {
+    Token * token;
+    int value;
+};
+
+struct BinaryOpNode{
+    ASTNode * left;
+    Token * operator;
+    ASTNode * right;
+};
+
+
+ASTNode * create_number_node(TokenType tokenType, ValueType valueType, int value);
+ASTNode * create_binary_operator_node(Token * opToken, ASTNode * left, ASTNode * right );
 
 #endif //ZLANG_ABSTRACT_SYNTAX_TREE_H
