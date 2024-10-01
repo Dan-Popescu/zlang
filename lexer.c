@@ -1,5 +1,5 @@
 //
-// Created by popes on 01/10/2024.
+//
 //
 
 #include "lexer.h"
@@ -7,11 +7,13 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "tokenizer.h"
+#include <string.h>
 
 
 Lexer * create_lexer(char *text){
     Lexer * lexer = (Lexer *)malloc(sizeof(Lexer));
-    lexer->text = text;
+    lexer->text = calloc(strlen(text) + 1, sizeof(char));
+    strcpy(lexer->text, text);
     lexer->pos = 0;
     lexer->current_char = lexer->text[lexer->pos];
     return lexer;
@@ -64,23 +66,34 @@ Token * get_next_token(Lexer * lexer){
 
         if(lexer->current_char == '+'){
             advance(lexer);
-            return create_token(TOKEN_OPERATOR, CHAR, '+');
+            return create_token(TOKEN_OPERATOR_PLUS, CHAR, '+');
         }
 
         if(lexer->current_char == '-'){
             advance(lexer);
-            return create_token(TOKEN_OPERATOR, CHAR, '-');
+            return create_token(TOKEN_OPERATOR_MINUS, CHAR, '-');
         }
 
         if(lexer->current_char == '*'){
             advance(lexer);
-            return create_token(TOKEN_OPERATOR, CHAR, '*');
+            return create_token(TOKEN_OPERATOR_MULT, CHAR, '*');
         }
 
         if(lexer->current_char == '/'){
             advance(lexer);
-            return create_token(TOKEN_OPERATOR, CHAR, '/');
+            return create_token(TOKEN_OPERATOR_DIV, CHAR, '/');
         }
+
+        if(lexer->current_char == '('){
+            advance(lexer);
+            return create_token(TOKEN_LPAREN, CHAR, '(');
+        }
+
+        if(lexer->current_char == ')'){
+            advance(lexer);
+            return create_token(TOKEN_RPAREN, CHAR, ')');
+        }
+
         printf("\nError : Invalid character.\n");
         exit(EXIT_FAILURE);
     }

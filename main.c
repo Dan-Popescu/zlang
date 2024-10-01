@@ -7,7 +7,6 @@
 #include "interpreter.h"
 
 unsigned short validate_file_input(char * filepath);
-void repl();
 
 unsigned char running = 1;
 
@@ -35,6 +34,10 @@ int main(int argc, char ** argv) {
                 break;
             };
 
+            if(strlen(expression) <= 1){
+                continue;
+            }
+
             // check is user wants to exit either by typing exit
             if (strncmp(expression, "exit", 4) == 0 || strncmp(expression, "exit;", 5) == 0) {
                 running = 0;
@@ -51,9 +54,9 @@ int main(int argc, char ** argv) {
 
             // Free memory
             free(interpreter->current_token);
+            free(interpreter->lexer->text);
+            free(interpreter->lexer);
             free(interpreter);
-            free(lexer->text);
-            free(lexer);
         }
 
     }else if(argc == 2){

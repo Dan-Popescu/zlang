@@ -1,5 +1,5 @@
 //
-// Created by popes on 29/09/2024.
+//
 //
 
 #ifndef ZLANG_INTERPRETER_H

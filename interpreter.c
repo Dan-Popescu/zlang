@@ -1,5 +1,5 @@
 //
-// Created by Popescu Dan on 29/09/2024.
+//
 //
 
 #include <stdio.h>
@@ -28,47 +28,79 @@ void consume_token(Interpreter * interpreter, TokenType tokenType){
     }
 }
 
+/**
+ *
+ * factor : NUMBER | LPAREN expr RPAREN
+ *
+ * @param interpreter
+ * @return
+ */
 int factor(Interpreter * interpreter){
+
     Token * token = interpreter->current_token;
-    int value = token->value;
-    consume_token(interpreter, TOKEN_NUMBER);
-    return value;
+    if(token->type == TOKEN_NUMBER){
+        int value = token->value;
+        consume_token(interpreter, TOKEN_NUMBER);
+        return value;
+    }else if(token->type == TOKEN_LPAREN){
+        consume_token(interpreter, TOKEN_LPAREN);
+        int result = expr(interpreter);
+        consume_token(interpreter, TOKEN_RPAREN);
+        return result;
+    }
+
 }
+
+/**
+ *
+ * term : factor ( (MULT | DIV) * factor)*
+ *
+ * @param interpreter
+ * @return
+ */
 
 int term(Interpreter * interpreter){
     int result = factor(interpreter);
-    while(interpreter->current_token->type == TOKEN_OPERATOR &&
-          (interpreter->current_token->value == '*' || interpreter->current_token->value == '/')){
+    while(interpreter->current_token->type == TOKEN_OPERATOR_MULT ||
+            interpreter->current_token->type == TOKEN_OPERATOR_DIV){
         Token * token = interpreter->current_token;
-        if(token->type == TOKEN_OPERATOR && token->value == '*'){
-            consume_token(interpreter, TOKEN_OPERATOR);
+        if(token->type == TOKEN_OPERATOR_MULT){
+            consume_token(interpreter, TOKEN_OPERATOR_MULT);
             result = result * factor(interpreter);
-        }else if(token->type == TOKEN_OPERATOR && token->value == '/'){
-            consume_token(interpreter, TOKEN_OPERATOR);
+        }else if(token->type == TOKEN_OPERATOR_DIV){
+            consume_token(interpreter, TOKEN_OPERATOR_DIV);
             result = result / factor(interpreter);
         }
     }
     return result;
 }
 
+/**
+ *
+ *
+ * expr : term ( (PLUS | MINUS) term)*
+ * term : factor ( (MUL | DIV) * factor)*
+ * factor : NUMBER | LPAREN expr RPAREN
+ *
+ * @param interpreter
+ * @return
+ */
+
 int expr(Interpreter * interpreter){
     int result = term(interpreter);
-    while(interpreter->current_token->type == TOKEN_OPERATOR &&
-          (interpreter->current_token->value == '+' || interpreter->current_token->value == '-')){
+    while(interpreter->current_token->type == TOKEN_OPERATOR_PLUS ||
+            interpreter->current_token->type == TOKEN_OPERATOR_MINUS){
         Token * token = interpreter->current_token;
-        if(token->type == TOKEN_OPERATOR && token->value == '+'){
-            consume_token(interpreter, TOKEN_OPERATOR);
+        if(token->type == TOKEN_OPERATOR_PLUS){
+            consume_token(interpreter, TOKEN_OPERATOR_PLUS);
             result = result + term(interpreter);
-        }else if(token->type == TOKEN_OPERATOR && token->value == '-'){
-            consume_token(interpreter, TOKEN_OPERATOR);
+        }else if(token->type == TOKEN_OPERATOR_MINUS){
+            consume_token(interpreter, TOKEN_OPERATOR_MINUS);
             result = result - term(interpreter);
         }
     }
     return result;
 }
-
-
-
 
 
 void interpret_file(const char * filepath){
