@@ -55,6 +55,48 @@ int interpret(ASTNode * node){
     }
 }
 
+/**
+ *
+ * @param node
+ */
+
+int display_AST_RPN(ASTNode * node){
+    if(node->type == NUMBER_NODE){
+        NumberNode * numNode = node->node->numNode;
+        printf("%d ", numNode->value);
+        return numNode->value;
+    }else if(node->type == BINARY_OPERATOR_NODE){
+        BinaryOpNode * binaryOpNode = node->node->binaryOpNode;
+        int left = display_AST_RPN(binaryOpNode->left);
+        int right = display_AST_RPN(binaryOpNode->right);
+//        printf("%d ", left);
+//        printf("%d ", right);
+        switch(binaryOpNode->operator->type){
+            case TOKEN_OPERATOR_PLUS:
+                printf("+ ");
+                return left + right;
+            case TOKEN_OPERATOR_MINUS:
+                printf("- ");
+                return left - right;
+            case TOKEN_OPERATOR_MULT:
+                printf("* ");
+                return left * right;
+            case TOKEN_OPERATOR_DIV:
+                printf("/ ");
+                if(right == 0){
+                    printf("\nError : Division by zero. \n");
+                    exit(EXIT_FAILURE);
+                }
+                return left / right;
+            default:
+                printf("\nError : Invalid operator : %c\n", binaryOpNode->operator->type);
+                exit(EXIT_FAILURE);
+        }
+    }else {
+        printf("\nError: Invalid node type.\n");
+        exit(EXIT_FAILURE);
+    }
+}
 
 
 

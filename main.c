@@ -56,6 +56,9 @@ int main(int argc, char ** argv) {
             int value = interpret(tree);
             printf("\n Value is : %d", value);
 
+            printf("\n Reverse Polish Notation : ");
+            display_AST_RPN(tree);
+
             // Free memory
             free(interpreter->parser->current_token);
             free(interpreter->parser->lexer->text);

@@ -20,6 +20,7 @@ ASTNode * factor(Parser * parser);
 ASTNode * term(Parser * parser);
 ASTNode * expr(Parser * parser);
 int interpret(ASTNode * node);
+int display_AST_RPN(ASTNode * node);
 
 
 
