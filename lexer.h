@@ -46,14 +46,20 @@ typedef enum{
 
 
 typedef struct{
+    int intValue;
+    long longValue;
+    float floatValue;
+    double doubleValue;
+    char * strValue;
+} TokenValueUnion;
+
+typedef struct{
     TokenType type;
-//    char *value;
-    int value;
+//    int value;
+    TokenValueUnion value;
     unsigned int valueType;
 //    char * startPtr;
 //    char * endPtr;
-//    long line;
-//    long column;
 } Token;
 
 typedef struct{

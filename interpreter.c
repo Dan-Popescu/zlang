@@ -19,6 +19,18 @@ Interpreter * create_interpreter(Parser * parser){
 
 
 int interpret(ASTNode * node){
+    if(node->type == UNARY_OPERATOR_NODE){
+        UnaryOpNode * unaryOpNode = node->node->unaryOpNode;
+        if(unaryOpNode->operator->type == TOKEN_OPERATOR_PLUS){
+            ASTNode * expression = node->node->unaryOpNode->expression;
+            int value = interpret(expression);
+            return value;
+        }else if(unaryOpNode->operator->type == TOKEN_OPERATOR_MINUS){
+            ASTNode * expression = node->node->unaryOpNode->expression;
+            int value = interpret(expression);
+            return -value;
+        }
+    }
     if(node->type == NUMBER_NODE){
         NumberNode * numNode = node->node->numNode;
         return numNode->value;
@@ -61,7 +73,23 @@ int interpret(ASTNode * node){
  */
 
 int display_AST_RPN(ASTNode * node){
-    if(node->type == NUMBER_NODE){
+
+    if(node->type == UNARY_OPERATOR_NODE){
+        UnaryOpNode * unaryOpNode = node->node->unaryOpNode;
+        if(unaryOpNode->operator->type == TOKEN_OPERATOR_PLUS){
+            ASTNode * expression = node->node->unaryOpNode->expression;
+            int value = interpret(expression);
+            printf("%d ", value);
+            printf("%c ",unaryOpNode->operator->value);
+            return value;
+        }else if(unaryOpNode->operator->type == TOKEN_OPERATOR_MINUS){
+            ASTNode * expression = node->node->unaryOpNode->expression;
+            int value = interpret(expression);
+            printf("%d ", value);
+            printf("%c ",unaryOpNode->operator->value);
+            return -value;
+        }
+    }else if(node->type == NUMBER_NODE){
         NumberNode * numNode = node->node->numNode;
         printf("%d ", numNode->value);
         return numNode->value;

@@ -1,0 +1,22 @@
+program : statements_list
+statements_list : statement |
+                  statement SEMI_COLON statements_list
+statement : compound_statement |
+            assignment_statement |
+            empty
+
+assignment_statement : variable ASSIGNMENT_OP expr
+
+empty :
+
+expr : term ( (PLUS | MINUS) term )*
+
+term : factor ( (MULT | DIV) factor )*
+
+factor : PLUS factor |
+         MINUS factor |
+         INTEGER |
+         LPAREN expr RPAREN |
+         variable
+
+variable IDENTIFIER

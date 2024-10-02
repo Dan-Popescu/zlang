@@ -4,7 +4,8 @@
 
 #include "lexer.h"
 #include "abstract_syntax_tree.h"
-
+#include <ctype.h>
+#include <string.h>
 
 #ifndef ZLANG_PARSER_H
 #define ZLANG_PARSER_H

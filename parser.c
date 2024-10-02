@@ -28,15 +28,31 @@ void consume_token(Parser * parser, TokenType tokenType){
 
 /**
  *
- * factor : NUMBER | LPAREN expr RPAREN
+// * factor : NUMBER | LPAREN expr RPAREN
+ * factor (PLUS | MINUS) factor | INTEGER | LPAREN expr RPAREN
  *
  * @param parser
  * @return
  */
 ASTNode * factor(Parser * parser){
 
-    Token * token = parser->current_token;
-    if(token->type == TOKEN_NUMBER){
+//    Token * token = parser->current_token;
+    Token * token = malloc(sizeof(Token));
+    token->type = parser->current_token->type;
+    token->value = parser->current_token->value;
+    token->valueType = parser->current_token->valueType;
+
+    if(token->type == TOKEN_OPERATOR_PLUS){
+        consume_token(parser, TOKEN_OPERATOR_PLUS);
+        ASTNode * expression = factor(parser);
+        ASTNode * node = create_unary_operator_node(token, expression);
+        return node;
+    }if(token->type == TOKEN_OPERATOR_MINUS){
+        consume_token(parser, TOKEN_OPERATOR_MINUS);
+        ASTNode * expression = factor(parser);
+        ASTNode * node = create_unary_operator_node(token, expression);
+        return node;
+    }else if(token->type == TOKEN_NUMBER){
         int value = token->value;
         consume_token(parser, TOKEN_NUMBER);
         ASTNode * node = create_number_node(TOKEN_NUMBER, INT, value);
@@ -119,4 +135,31 @@ ASTNode *  expr(Parser * parser){
     }
 
     return left;
+}
+
+
+Token * identifier(Parser * parser){
+    unsigned short capacity = 10;
+    char * result = calloc(capacity, sizeof(char));
+    long index = 0;
+    while(parser->lexer->current_char != ' ' && isalpha(parser->lexer->current_char)){
+        char currChar = parser->lexer->current_char;
+        long size = strlen(result);
+        if(size >= index - 1){
+            char * newResult = calloc(capacity * 2, sizeof(char));
+            for(int i = 0; i < capacity; ++i){
+                newResult[i] = result[i];
+            }
+            free(result);
+            result = newResult;
+        }
+        strncpy(result, &currChar , 1);
+        advance(parser->lexer);
+    }
+
+    Token * token = malloc(sizeof(Token));
+    token->type = TOKEN_IDENTIFIER;
+    token->valueType = STRING;
+
+
 }

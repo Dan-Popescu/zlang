@@ -34,3 +34,14 @@ ASTNode * create_binary_operator_node(Token * opToken, ASTNode * left, ASTNode *
     return node;
 }
 
+ASTNode * create_unary_operator_node(Token * token, ASTNode * expression){
+    UnaryOpNode * unaryOpNode = malloc(sizeof(UnaryOpNode));
+    unaryOpNode->operator = token;
+    unaryOpNode->expression = expression;
+
+    ASTNode * node = malloc(sizeof(ASTNode));
+    node->type = UNARY_OPERATOR_NODE;
+    node->node = malloc(sizeof(UnaryOpNode));
+    node->node->unaryOpNode = unaryOpNode;
+    return node;
+}
