@@ -80,13 +80,13 @@ int display_AST_RPN(ASTNode * node){
             ASTNode * expression = node->node->unaryOpNode->expression;
             int value = interpret(expression);
             printf("%d ", value);
-            printf("%c ",unaryOpNode->operator->value);
+            printf("%c ",unaryOpNode->operator->value.intValue);
             return value;
         }else if(unaryOpNode->operator->type == TOKEN_OPERATOR_MINUS){
             ASTNode * expression = node->node->unaryOpNode->expression;
             int value = interpret(expression);
             printf("%d ", value);
-            printf("%c ",unaryOpNode->operator->value);
+            printf("%c ",unaryOpNode->operator->value.intValue);
             return -value;
         }
     }else if(node->type == NUMBER_NODE){

@@ -48,7 +48,8 @@ Token * create_token(TokenType type, ValueType valueType, int value){
     Token * token = (Token *)malloc(sizeof(Token));
     token->type = type;
     token->valueType = valueType;
-    token->value = value;
+//    token->value = value;
+    token->value.intValue = value;
     return token;
 }
 

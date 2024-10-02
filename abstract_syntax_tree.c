@@ -10,7 +10,8 @@ ASTNode * create_number_node(TokenType tokenType, ValueType valueType, int value
     numNode->token = malloc(sizeof(Token));
     numNode->token->type = tokenType;
     numNode->token->valueType = valueType;
-    numNode->token->value = value;
+//    numNode->token->value = value;
+    numNode->token->value.intValue = value;
     numNode->value = value;
 
     ASTNode * node = malloc(sizeof(ASTNode));

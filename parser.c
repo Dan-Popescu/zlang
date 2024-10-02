@@ -36,7 +36,6 @@ void consume_token(Parser * parser, TokenType tokenType){
  */
 ASTNode * factor(Parser * parser){
 
-//    Token * token = parser->current_token;
     Token * token = malloc(sizeof(Token));
     token->type = parser->current_token->type;
     token->value = parser->current_token->value;
@@ -53,7 +52,8 @@ ASTNode * factor(Parser * parser){
         ASTNode * node = create_unary_operator_node(token, expression);
         return node;
     }else if(token->type == TOKEN_NUMBER){
-        int value = token->value;
+//        int value = token->value;
+        int value = token->value.intValue;
         consume_token(parser, TOKEN_NUMBER);
         ASTNode * node = create_number_node(TOKEN_NUMBER, INT, value);
         return node;
