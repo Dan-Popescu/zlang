@@ -160,6 +160,7 @@ Token * identifier(Parser * parser){
     Token * token = malloc(sizeof(Token));
     token->type = TOKEN_IDENTIFIER;
     token->valueType = STRING;
+    token->value.strValue = result;
 
-
+    return token;
 }
