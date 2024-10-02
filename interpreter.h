@@ -3,22 +3,11 @@
 //
 
 #include "abstract_syntax_tree.h"
+#include "lexer.h"
+#include "parser.h"
 
 #ifndef ZLANG_INTERPRETER_H
 #define ZLANG_INTERPRETER_H
-
-#include "lexer.h"
-
-//typedef struct{
-//    Lexer * lexer;
-//    Token * current_token;
-//} Interpreter;
-
-typedef struct{
-    Lexer * lexer;
-    Token * current_token;
-} Parser;
-
 
 typedef struct{
     Parser * parser;

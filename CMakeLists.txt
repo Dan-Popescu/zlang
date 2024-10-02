@@ -5,9 +5,7 @@ set(CMAKE_C_STANDARD 23)
 
 add_executable(zlang
         main.c
-        op_s.h
-        operators.h
         interpreter.c
         interpreter.h
         constants.h
-        lexer.c lexer.h abstract_syntax_tree.c abstract_syntax_tree.h)
+        lexer.c lexer.h abstract_syntax_tree.c abstract_syntax_tree.h parser.c parser.h)

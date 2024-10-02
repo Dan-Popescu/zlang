@@ -27,7 +27,6 @@ struct ASTNode {
     NodeUnion * node;
 };
 
-
 struct NumberNode {
     Token * token;
     int value;
