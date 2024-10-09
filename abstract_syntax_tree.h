@@ -8,6 +8,8 @@
 #ifndef ZLANG_ABSTRACT_SYNTAX_TREE_H
 #define ZLANG_ABSTRACT_SYNTAX_TREE_H
 
+#include <stdio.h>
+
 typedef enum {
     NUMBER_NODE,
     BINARY_OPERATOR_NODE,

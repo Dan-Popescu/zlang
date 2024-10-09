@@ -108,11 +108,16 @@ void visit_assign_node( Interpreter * interpreter, ASTNode *node) {
     // Create variable node
     VariableNode * var_node_to_add = malloc(sizeof(VariableNode));
     var_node_to_add->valueType = INT;
+
     // create token representing the identifier
-    Token * var_token = malloc(sizeof(Token));
-    var_token->value.strValue = var_name;
-    var_token->valueType = STRING;
-    var_token->type = TOKEN_IDENTIFIER;
+
+//    Token * var_token = malloc(sizeof(Token));
+//    var_token->value.strValue = var_name;
+//    var_token->valueType = STRING;
+//    var_token->type = TOKEN_IDENTIFIER;
+//    var_node_to_add->varToken = var_token;
+
+    Token * var_token = create_token(TOKEN_IDENTIFIER, STRING, var_name);
     var_node_to_add->varToken = var_token;
 
     // Update variable scope to add with newly created identifier token and value to store in the variable
@@ -128,7 +133,6 @@ int visit_var_node( Interpreter * interpreter, ASTNode *node) {
     VariableScope * varScopeFound = find_variable_in_global_scope(global_scope, varName);
     int value = varScopeFound->value.intValue;
     return value;
-    return 0;
 }
 
 int visit_node( Interpreter * interpreter, ASTNode * node){

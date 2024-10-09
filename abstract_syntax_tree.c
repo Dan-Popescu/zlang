@@ -5,13 +5,19 @@
 #include "abstract_syntax_tree.h"
 #include <stdlib.h>
 
+
 ASTNode * create_number_node(TokenType tokenType, ValueType valueType, int value){
     NumberNode * numNode = malloc(sizeof(NumberNode));
-    numNode->token = malloc(sizeof(Token));
-    numNode->token->type = tokenType;
-    numNode->token->valueType = valueType;
-//    numNode->token->value = value;
-    numNode->token->value.intValue = value;
+//    numNode->token = malloc(sizeof(Token));
+//    numNode->token->type = tokenType;
+//    numNode->token->valueType = valueType;
+//    numNode->token->value.intValue = value;
+//    numNode->value = value;
+
+    char * intStrValue = calloc(24, sizeof(char));
+    sprintf(intStrValue, "%d", value);
+    Token * token = create_token(tokenType, valueType, intStrValue);
+    numNode->token = token;
     numNode->value = value;
 
     ASTNode * node = malloc(sizeof(ASTNode));
