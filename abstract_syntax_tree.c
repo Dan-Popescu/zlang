@@ -1,17 +1,23 @@
 //
-// Created by popes on 01/10/2024.
+//
 //
 
 #include "abstract_syntax_tree.h"
 #include <stdlib.h>
 
+
 ASTNode * create_number_node(TokenType tokenType, ValueType valueType, int value){
     NumberNode * numNode = malloc(sizeof(NumberNode));
-    numNode->token = malloc(sizeof(Token));
-    numNode->token->type = tokenType;
-    numNode->token->valueType = valueType;
-//    numNode->token->value = value;
-    numNode->token->value.intValue = value;
+//    numNode->token = malloc(sizeof(Token));
+//    numNode->token->type = tokenType;
+//    numNode->token->valueType = valueType;
+//    numNode->token->value.intValue = value;
+//    numNode->value = value;
+
+    char * intStrValue = calloc(24, sizeof(char));
+    sprintf(intStrValue, "%d", value);
+    Token * token = create_token(tokenType, valueType, intStrValue);
+    numNode->token = token;
     numNode->value = value;
 
     ASTNode * node = malloc(sizeof(ASTNode));
@@ -46,3 +52,41 @@ ASTNode * create_unary_operator_node(Token * token, ASTNode * expression){
     node->node->unaryOpNode = unaryOpNode;
     return node;
 }
+
+
+ASTNode * create_variable_node(Token * varToken){
+    VariableNode * varNode = malloc(sizeof(VariableNode));
+    varNode->varToken = varToken;
+
+    ASTNode * node = malloc(sizeof(ASTNode));
+    node->type = VARIABLE_NODE;
+    node->node= malloc(sizeof(VariableNode));
+    node->node->variableNode = varNode;
+
+    return node;
+}
+
+ASTNode * create_assignment_node(ASTNode * left, Token * assignmentToken, ASTNode * right){
+    AssignOpNode * assignOpNode = malloc(sizeof(AssignOpNode));
+    assignOpNode->identifier = left;
+    assignOpNode->assignmentToken = assignmentToken;
+    assignOpNode->expression = right;
+
+    ASTNode * node = malloc(sizeof(ASTNode));
+    node->type = ASSIGNMENT_NODE;
+    node->node = malloc(sizeof(AssignOpNode));
+    node->node->assignOpNode = assignOpNode;
+
+    return node;
+}
+
+
+ASTNode * create_empty_node(){
+    EmptyNode * emptyNode = malloc(sizeof(EmptyNode));
+
+    ASTNode * node = malloc(sizeof(ASTNode));
+    node->type = EMPTY_NODE;
+    node->node = malloc(sizeof(EmptyNode));
+    node->node->emptyNode = emptyNode;
+}
+

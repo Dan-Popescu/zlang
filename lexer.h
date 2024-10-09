@@ -25,6 +25,7 @@ typedef enum{
     TOKEN_LBRACKET,
     TOKEN_RBRACKET,
     TOKEN_IDENTIFIER, // variable names, function names
+    TOKEN_OPERATOR_ASSIGNMENT,
     TOKEN_KEYWORD, // reserved keywords in the language
     TOKEN_INSTRUCTION_END, // ;character
     TOKEN_EOF
@@ -50,16 +51,14 @@ typedef struct{
     long longValue;
     float floatValue;
     double doubleValue;
+    char charValue;
     char * strValue;
 } TokenValueUnion;
 
 typedef struct{
     TokenType type;
-//    int value;
     TokenValueUnion value;
     unsigned int valueType;
-//    char * startPtr;
-//    char * endPtr;
 } Token;
 
 typedef struct{
@@ -68,11 +67,16 @@ typedef struct{
 } ExpressionValue;
 
 Lexer * create_lexer(char *text);
+void free_lexer(Lexer * lexer);
 void advance(Lexer * lexer);
 void skip_whitespace(Lexer * lexer);
 int integer(Lexer * lexer);
-Token * create_token(TokenType type, ValueType valueType, int value);
+//Token * create_token(TokenType type, ValueType valueType, int value);
+Token * create_token(TokenType type, ValueType valueType, char * valueString);
+void free_token(Token * token);
+Token * identifier(Lexer * lexer);
 Token * get_next_token(Lexer * lexer);
+
 
 
 #endif //ZLANG_LEXER_H
