@@ -68,12 +68,12 @@ int visit_bin_op_node( Interpreter * interpreter, ASTNode * node){
             return left_value * right_value;
         case TOKEN_OPERATOR_DIV:
             if (right_value == 0) {
-                printf("Erreur : division par zéro\n");
+                printf("Error : Division by zero\n");
                 exit(EXIT_FAILURE);
             }
             return left_value / right_value;
         default:
-            printf("Erreur : opération inconnue\n");
+            printf("Error : Unknown operation.\n");
             exit(EXIT_FAILURE);
     }
 }
@@ -93,7 +93,7 @@ int visit_unary_op_node( Interpreter * interpreter, ASTNode *node) {
         case TOKEN_OPERATOR_MINUS:
             return -expr_value;
         default:
-            printf("Erreur : opérateur unaire inconnu\n");
+            printf("\nError : invalid unary operator.\n");
             exit(EXIT_FAILURE);
     }
 }
@@ -146,7 +146,7 @@ int visit_node( Interpreter * interpreter, ASTNode * node){
         case VARIABLE_NODE:
             return visit_var_node(interpreter, node);
         default:
-            printf("Erreur : type de nœud inconnu\n");
+            fprintf(stderr, "\nError : invalid node type.\n");
             exit(EXIT_FAILURE);
     }
 }
@@ -291,71 +291,6 @@ void free_global_scope(GLOBAL_SCOPE * globalScope){
     free(globalScope);
 }
 
-
-/**
- *
- * @param node
- */
-
-//int display_AST_RPN(ASTNode * node){
-//
-//    if(node->type == UNARY_OPERATOR_NODE){
-//        UnaryOpNode * unaryOpNode = node->node->unaryOpNode;
-//        if(unaryOpNode->operator->type == TOKEN_OPERATOR_PLUS){
-//            ASTNode * expression = node->node->unaryOpNode->expression;
-//            int value = interpret(expression);
-//            printf("%d ", value);
-//            printf("%c ",unaryOpNode->operator->value.intValue);
-//            return value;
-//        }else if(unaryOpNode->operator->type == TOKEN_OPERATOR_MINUS){
-//            ASTNode * expression = node->node->unaryOpNode->expression;
-//            int value = interpret(expression);
-//            printf("%d ", value);
-//            printf("%c ",unaryOpNode->operator->value.intValue);
-//            return -value;
-//        }
-//    }else if(node->type == NUMBER_NODE){
-////        NumberNode * numNode = node->node->numNode;
-////        return numNode->value;
-//        return visit_number_node(node);
-//    }else if(node->type == BINARY_OPERATOR_NODE){
-//        BinaryOpNode * binaryOpNode = node->node->binaryOpNode;
-//        int left = display_AST_RPN(binaryOpNode->left);
-//        int right = display_AST_RPN(binaryOpNode->right);
-////        printf("%d ", left);
-////        printf("%d ", right);
-//        switch(binaryOpNode->operator->type){
-//            case TOKEN_OPERATOR_PLUS:
-//                printf("+ ");
-//                return left + right;
-//            case TOKEN_OPERATOR_MINUS:
-//                printf("- ");
-//                return left - right;
-//            case TOKEN_OPERATOR_MULT:
-//                printf("* ");
-//                return left * right;
-//            case TOKEN_OPERATOR_DIV:
-//                printf("/ ");
-//                if(right == 0){
-//                    printf("\nError : Division by zero. \n");
-//                    exit(EXIT_FAILURE);
-//                }
-//                return left / right;
-//            default:
-//                printf("\nError : Invalid operator : %c\n", binaryOpNode->operator->type);
-//                exit(EXIT_FAILURE);
-//        }
-//    }else if(node->type == VARIABLE_NODE){
-//        printf("\nVariable node to be handled");
-//    }else if(node->type == ASSIGNMENT_NODE){
-//        printf("\nAssignment node to be handled");
-//    }else if(node->type == EMPTY_NODE){
-//        printf("\nEmpty node to be handled");
-//    }else {
-//        printf("\nError: Invalid node type.\n");
-//        exit(EXIT_FAILURE);
-//    }
-//}
 
 void interpret_file(const char * filepath){
     FILE * f = fopen(filepath, "r");

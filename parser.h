@@ -1,5 +1,5 @@
 //
-// Created by popes on 02/10/2024.
+//
 //
 
 #include "lexer.h"

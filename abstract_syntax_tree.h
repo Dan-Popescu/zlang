@@ -1,5 +1,5 @@
 //
-// Created by popes on 01/10/2024.
+//
 //
 
 #include "lexer.h"
@@ -67,26 +67,6 @@ struct AssignOpNode{
 };
 
 struct EmptyNode{};
-
-//typedef union{
-//    int intValue;
-//    long longValue;
-//    float floatValue;
-//    double doubleValue;
-//    char charValue;
-//    char * stringValue;
-//} VariableValue;
-//
-//typedef struct{
-//    VariableNode * variableNode;
-//    VariableValue value;
-//} VariableScope;
-//
-//typedef struct{
-//    unsigned short capacity;
-//    unsigned short size;
-//    VariableScope ** variables;
-//} GLOBAL_SCOPE;
 
 
 ASTNode * create_number_node(TokenType tokenType, ValueType valueType, int value);
