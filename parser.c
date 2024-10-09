@@ -25,6 +25,7 @@ void free_parser(Parser * parser){
     if(parser->lexer != NULL) free_lexer(parser->lexer);
     // free current token
     if(parser->current_token != NULL) free_token(parser->current_token);
+    free(parser);
 }
 
 

@@ -23,6 +23,7 @@ Interpreter * create_interpreter(Parser * parser, GLOBAL_SCOPE * global_scope){
 void free_interpreter(Interpreter * interpreter){
     if(interpreter == NULL) return;
     if(interpreter->parser != NULL) free_parser(interpreter->parser);
+    free(interpreter);
 }
 
 

@@ -28,6 +28,7 @@ void free_lexer(Lexer * lexer){
     if(lexer->text != NULL){
         free(lexer->text);
     }
+    free(lexer);
 }
 
 /**
