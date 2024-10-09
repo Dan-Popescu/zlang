@@ -40,7 +40,6 @@ void consume_token(Parser * parser, TokenType tokenType){
 
 /**
  *
-// * factor : NUMBER | LPAREN expr RPAREN
  * factor (PLUS | MINUS) factor | INTEGER | LPAREN expr RPAREN | variable
  *
  * @param parser
@@ -119,7 +118,7 @@ ASTNode * term(Parser * parser){
  *
  * expr : term ( (PLUS | MINUS) term)*
  * term : factor ( (MUL | DIV) * factor)*
- * factor : NUMBER | LPAREN expr RPAREN
+ * factor : (PLUS | MINUS) factor | INTEGER | LPAREN expr RPAREN | variable
  *
  * @param parser
  * @return
@@ -218,6 +217,8 @@ ASTNode * statement(Parser * parser){
     if(currToken->type == TOKEN_IDENTIFIER){
         ASTNode * assignmentNode = assignment_statement(parser);
         return assignmentNode;
+    }else if(currToken->type == TOKEN_KEYWORD_PRINT){
+
     }else{
         ASTNode * emptyNode = create_empty_node();
         return emptyNode;

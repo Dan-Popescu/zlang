@@ -120,6 +120,33 @@ Token * create_token(TokenType type, ValueType valueType, char * valueString){
     return token;
 }
 
+RESERVED_KEYWORDS * initialize_reserved_keywords(){
+    RESERVED_KEYWORDS * reservedKeywords = malloc(sizeof (RESERVED_KEYWORDS));
+    reservedKeywords->size = 1;
+    reservedKeywords->keywords = malloc(reservedKeywords->size * sizeof(RESERVED_KEYWORD * ));
+
+    const char * lexemes[] = {"print"};
+    TokenType tokenTypes[] = { TOKEN_KEYWORD_PRINT};
+
+    for(unsigned long i = 0; i < reservedKeywords->size; ++i){
+        reservedKeywords->keywords[i] = malloc(sizeof(RESERVED_KEYWORD));
+        reservedKeywords->keywords[i]->token = malloc(sizeof(Token));
+        reservedKeywords->keywords[i]->token->type = tokenTypes[i];
+        reservedKeywords->keywords[i]->token->valueType = STRING;
+        reservedKeywords->keywords[i]->token->value.strValue = calloc(strlen(lexemes[i]) + 1, sizeof(char));
+        strcpy(reservedKeywords->keywords[i]->token->value.strValue, lexemes[i]);
+    }
+
+    return reservedKeywords;
+}
+
+void free_reserved_keywords(RESERVED_KEYWORDS * reservedKeywords){
+    for (unsigned short i = 0; i < reservedKeywords->size; i++) {
+        free(reservedKeywords->keywords[i]->token);
+        free(reservedKeywords->keywords[i]);
+    }
+    free(reservedKeywords->keywords);
+}
 
 Token * identifier(Lexer * lexer) {
     unsigned short capacity = 10;
@@ -128,16 +155,35 @@ Token * identifier(Lexer * lexer) {
     while (lexer->current_char != ' ' && lexer->current_char != ';' && isalpha(lexer->current_char)) {
         char currChar = lexer->current_char;
         long size = strlen(result);
-        if (size >= index - 1) {
+        if (size >= capacity - 1) {
             char *newResult = calloc(capacity * 2, sizeof(char));
+
             for (int i = 0; i < capacity; ++i) {
-                newResult[i] = result[i];
+                if(i<=size) newResult[i] = result[i];
+                else newResult[i] = '\0';
             }
             free(result);
             result = newResult;
         }
-        strncpy(result, &currChar, 1);
+        strcat(result, &currChar);
         advance(lexer);
+    }
+
+    // check if the identifier corresponds to any of the reserved keywords
+    RESERVED_KEYWORDS  * reservedKeywords = initialize_reserved_keywords();
+    for(unsigned short i = 0; i < reservedKeywords->size; ++i){
+        if(strcmp(reservedKeywords->keywords[i]->token->value.strValue, result)==0){
+            char * keywordStr = reservedKeywords->keywords[i]->token->value.strValue;
+            unsigned int tokenType = reservedKeywords->keywords[i]->token->type;
+            unsigned int tokenValueType = reservedKeywords->keywords[i]->token->valueType;
+            char * tokenStrValue = calloc(strlen(keywordStr) + 1 ,
+                                                  sizeof(char));
+
+            Token * keywordToken = create_token(tokenType, tokenValueType, tokenStrValue);
+
+            free_reserved_keywords(reservedKeywords);
+            return keywordToken;
+        }
     }
 
     Token * token = create_token(TOKEN_IDENTIFIER, STRING, result);
