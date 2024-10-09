@@ -27,6 +27,7 @@ typedef enum{
     TOKEN_IDENTIFIER, // variable names, function names
     TOKEN_OPERATOR_ASSIGNMENT,
     TOKEN_KEYWORD, // reserved keywords in the language
+    TOKEN_KEYWORD_PRINT,
     TOKEN_INSTRUCTION_END, // ;character
     TOKEN_EOF
 } TokenType;
@@ -65,6 +66,15 @@ typedef struct{
     unsigned int valueType;
     void * value;
 } ExpressionValue;
+
+typedef struct{
+    Token * token;
+} RESERVED_KEYWORD;
+
+typedef struct{
+    unsigned short size;
+    RESERVED_KEYWORD ** keywords;
+} RESERVED_KEYWORDS;
 
 Lexer * create_lexer(char *text);
 void free_lexer(Lexer * lexer);
