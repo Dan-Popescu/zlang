@@ -8,4 +8,4 @@ add_executable(zlang
         interpreter.c
         interpreter.h
         constants.h
-        lexer.c lexer.h abstract_syntax_tree.c abstract_syntax_tree.h parser.c parser.h tests.c tests.h)
+        lexer.c lexer.h abstract_syntax_tree.c abstract_syntax_tree.h parser.c parser.h)

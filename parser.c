@@ -41,7 +41,7 @@ void consume_token(Parser * parser, TokenType tokenType){
 /**
  *
 // * factor : NUMBER | LPAREN expr RPAREN
- * factor (PLUS | MINUS) factor | INTEGER | LPAREN expr RPAREN
+ * factor (PLUS | MINUS) factor | INTEGER | LPAREN expr RPAREN | variable
  *
  * @param parser
  * @return
@@ -74,6 +74,9 @@ ASTNode * factor(Parser * parser){
         ASTNode * result = expr(parser);
         consume_token(parser, TOKEN_RPAREN);
         return result;
+    }else if(token->type == TOKEN_IDENTIFIER){
+        ASTNode * varNode = variable(parser);
+        return varNode;
     }
 }
 

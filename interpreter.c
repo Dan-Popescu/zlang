@@ -59,7 +59,7 @@ int visit_bin_op_node( Interpreter * interpreter, ASTNode * node){
     int left_value = visit_node(interpreter, node->node->binaryOpNode->left);
     int right_value = visit_node(interpreter, node->node->binaryOpNode->right);
 
-    switch (node->node->binaryOpNode->operator->valueType){
+    switch (node->node->binaryOpNode->operator->type){
         case TOKEN_OPERATOR_PLUS:
             return left_value + right_value;
         case TOKEN_OPERATOR_MINUS:
@@ -120,7 +120,6 @@ void visit_assign_node( Interpreter * interpreter, ASTNode *node) {
     var_scope_to_add->value.intValue = value;
 
     set_variable_in_global_scope(global_scope, var_scope_to_add);
-//    add_variable_to_global_scope(global_scope, var_scope_to_add);
 }
 
 int visit_var_node( Interpreter * interpreter, ASTNode *node) {

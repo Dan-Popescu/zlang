@@ -51,6 +51,7 @@ typedef struct{
     long longValue;
     float floatValue;
     double doubleValue;
+    char charValue;
     char * strValue;
 } TokenValueUnion;
 

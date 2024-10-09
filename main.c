@@ -42,6 +42,7 @@ int main(int argc, char ** argv) {
             // check is user wants to exit either by typing exit
             if (strncmp(expression, "exit", 4) == 0 || strncmp(expression, "exit;", 5) == 0) {
                 running = 0;
+                continue;
             }
 
             // if no exit was demanded by user, remove the null character from the string expression before evaluation
