@@ -46,3 +46,41 @@ ASTNode * create_unary_operator_node(Token * token, ASTNode * expression){
     node->node->unaryOpNode = unaryOpNode;
     return node;
 }
+
+
+ASTNode * create_variable_node(Token * varToken){
+    VariableNode * varNode = malloc(sizeof(VariableNode));
+    varNode->varToken = varToken;
+
+    ASTNode * node = malloc(sizeof(ASTNode));
+    node->type = VARIABLE_NODE;
+    node->node= malloc(sizeof(VariableNode));
+    node->node->variableNode = varNode;
+
+    return node;
+}
+
+ASTNode * create_assignment_node(ASTNode * left, Token * assignmentToken, ASTNode * right){
+    AssignOpNode * assignOpNode = malloc(sizeof(AssignOpNode));
+    assignOpNode->identifier = left;
+    assignOpNode->assignmentToken = assignmentToken;
+    assignOpNode->expression = right;
+
+    ASTNode * node = malloc(sizeof(ASTNode));
+    node->type = ASSIGNMENT_NODE;
+    node->node = malloc(sizeof(AssignOpNode));
+    node->node->assignOpNode = assignOpNode;
+
+    return node;
+}
+
+
+ASTNode * create_empty_node(){
+    EmptyNode * emptyNode = malloc(sizeof(EmptyNode));
+
+    ASTNode * node = malloc(sizeof(ASTNode));
+    node->type = EMPTY_NODE;
+    node->node = malloc(sizeof(EmptyNode));
+    node->node->emptyNode = emptyNode;
+}
+

@@ -15,9 +15,6 @@ void handle_sigint(int sig){
     running = 0;
 }
 
-
-
-
 int main(int argc, char ** argv) {
 
     if(argc == 1){
@@ -26,6 +23,10 @@ int main(int argc, char ** argv) {
 
         // attach an even handler to SIGINT ( event emitted when pressing Ctrl + C)
         signal(SIGINT, handle_sigint);
+
+
+        // initialize global scope
+        GLOBAL_SCOPE * global_scope = init_global_scope(20);
 
         // no file input was provided, behave as REPL
         while(running) {
@@ -49,23 +50,25 @@ int main(int argc, char ** argv) {
 
             Lexer * lexer = create_lexer(expression);
             Parser * parser = create_parser(lexer);
-            Interpreter * interpreter = create_interpreter(parser);
+            Interpreter * interpreter = create_interpreter(parser, global_scope);
 
-            ASTNode * tree = expr(parser);
+//            ASTNode * tree = expr(parser);
 
-            int value = interpret(tree);
+            ASTNode * tree = statement(parser);
+
+            int value = interpret(interpreter, tree);
             printf("\n Value is : %d", value);
+            display_global_scope_variables(global_scope);
 
-            printf("\n Reverse Polish Notation : ");
-            display_AST_RPN(tree);
 
-            // Free memory
-            free(interpreter->parser->current_token);
-            free(interpreter->parser->lexer->text);
-            free(interpreter->parser->lexer);
-            free(interpreter->parser);
+//            printf("\n Reverse Polish Notation : ");
+//            display_AST_RPN(tree);
+
+            // Free memory for interpreter, parser and lexer
             free(interpreter);
         }
+
+        free_global_scope(global_scope);
 
     }else if(argc == 2){
         // check if file input is in correct format and file exists

@@ -19,6 +19,14 @@ Lexer * create_lexer(char *text){
     return lexer;
 };
 
+void free_lexer(Lexer * lexer){
+    if(lexer == NULL) return;
+    // free text
+    if(lexer->text != NULL){
+        free(lexer->text);
+    }
+}
+
 /**
  * Function for advancing lexer position to next character from which to start extracting next token
  */
@@ -46,10 +54,40 @@ int integer(Lexer * lexer){
 
 Token * create_token(TokenType type, ValueType valueType, int value){
     Token * token = (Token *)malloc(sizeof(Token));
+    if (token == NULL) {
+        fprintf(stderr, "Memory allocation failed for token.\n");
+        exit(EXIT_FAILURE);
+    }
     token->type = type;
     token->valueType = valueType;
-//    token->value = value;
     token->value.intValue = value;
+    return token;
+}
+
+Token * identifier(Lexer * lexer) {
+    unsigned short capacity = 10;
+    char *result = calloc(capacity, sizeof(char));
+    long index = 0;
+    while (lexer->current_char != ' ' && lexer->current_char != ';' && isalpha(lexer->current_char)) {
+        char currChar = lexer->current_char;
+        long size = strlen(result);
+        if (size >= index - 1) {
+            char *newResult = calloc(capacity * 2, sizeof(char));
+            for (int i = 0; i < capacity; ++i) {
+                newResult[i] = result[i];
+            }
+            free(result);
+            result = newResult;
+        }
+        strncpy(result, &currChar, 1);
+        advance(lexer);
+    }
+
+    Token * token = malloc(sizeof(Token));
+    token->type = TOKEN_IDENTIFIER;
+    token->valueType = STRING;
+    token->value.strValue = result;
+
     return token;
 }
 
@@ -61,8 +99,17 @@ Token * get_next_token(Lexer * lexer){
             continue;
         }
 
+        if(isalpha(lexer->current_char)){
+            return identifier(lexer);
+        }
+
         if(isdigit(lexer->current_char)){
             return create_token(TOKEN_NUMBER, INT, integer(lexer));
+        }
+
+        if(lexer->current_char == '='){
+            advance(lexer);
+            return create_token(TOKEN_OPERATOR_ASSIGNMENT, CHAR, '=');
         }
 
         if(lexer->current_char == '+'){
@@ -99,5 +146,12 @@ Token * get_next_token(Lexer * lexer){
         exit(EXIT_FAILURE);
     }
     return create_token(TOKEN_EOF, INT, -1);
+}
 
+void free_token(Token * token){
+    if(token == NULL) return;
+    if(token->valueType == STRING && token->value.strValue != NULL) {
+        free(token->value.strValue);
+    }
+    free(token);
 }

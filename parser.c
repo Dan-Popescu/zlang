@@ -10,9 +10,21 @@
 
 Parser * create_parser(Lexer * lexer){
     Parser * parser = (Parser *)malloc(sizeof(Parser));
+    if (parser == NULL) {
+        fprintf(stderr, "Memory allocation failed when trying to create new parser.\n");
+        exit(EXIT_FAILURE);
+    }
     parser->lexer = lexer;
     parser->current_token = get_next_token(lexer);
     return parser;
+}
+
+void free_parser(Parser * parser){
+    if(parser == NULL) return;
+    // free the lexer
+    if(parser->lexer != NULL) free_lexer(parser->lexer);
+    // free current token
+    if(parser->current_token != NULL) free_token(parser->current_token);
 }
 
 
@@ -138,29 +150,73 @@ ASTNode *  expr(Parser * parser){
 }
 
 
-Token * identifier(Parser * parser){
-    unsigned short capacity = 10;
-    char * result = calloc(capacity, sizeof(char));
-    long index = 0;
-    while(parser->lexer->current_char != ' ' && isalpha(parser->lexer->current_char)){
-        char currChar = parser->lexer->current_char;
-        long size = strlen(result);
-        if(size >= index - 1){
-            char * newResult = calloc(capacity * 2, sizeof(char));
-            for(int i = 0; i < capacity; ++i){
-                newResult[i] = result[i];
-            }
-            free(result);
-            result = newResult;
-        }
-        strncpy(result, &currChar , 1);
-        advance(parser->lexer);
-    }
 
+/**
+ *
+ * variable : TOKEN_IDENTIFIER
+ *
+ * @param parser
+ * @return
+ */
+
+ASTNode * variable(Parser * parser){
+
+    // make a deep copy of current token from the parser to avoid mutation during parsing (consume_token)
+    Token * currToken = malloc(sizeof(Token));
+    currToken->type = parser->current_token->type;
+    currToken->valueType = parser->current_token->valueType;
+    currToken->value = parser->current_token->value;
+
+    ASTNode * varNode = create_variable_node(currToken);
+    consume_token(parser, TOKEN_IDENTIFIER);
+
+    return varNode;
+}
+
+/**
+ *
+ * assignment_statement : VARIABLE TOKEN_ASSIGNMENT_OPERATOR expr
+ *
+ * @param parser
+ * @return
+ */
+ASTNode * assignment_statement(Parser * parser){
+
+    // create node with the identifier of the variable
+    ASTNode * left = variable(parser);
+
+    // make a deep copy of current token from the parser to avoid mutation during parsing (consume_token)
     Token * token = malloc(sizeof(Token));
-    token->type = TOKEN_IDENTIFIER;
-    token->valueType = STRING;
-    token->value.strValue = result;
+    token->type = parser->current_token->type;
+    token->valueType = parser->current_token->valueType;
+    token->value = parser->current_token->value;
 
-    return token;
+    // consume the token assignment operator
+    consume_token(parser, TOKEN_OPERATOR_ASSIGNMENT);
+
+    // crate node with the expression assigned to the variable (identifier)
+    ASTNode * right = expr(parser);
+    ASTNode * assignmentNode =  create_assignment_node(left, token, right);
+
+    return assignmentNode;
+}
+
+/**
+ *
+ * statement : assignment_statement |
+ *
+ *
+ * @param parser
+ * @return
+ */
+ASTNode * statement(Parser * parser){
+//    @TODO complete later when we will have other kinds of statements
+    Token * currToken = parser->current_token;
+    if(currToken->type == TOKEN_IDENTIFIER){
+        ASTNode * assignmentNode = assignment_statement(parser);
+        return assignmentNode;
+    }else{
+        ASTNode * emptyNode = create_empty_node();
+        return emptyNode;
+    }
 }
