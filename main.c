@@ -58,8 +58,15 @@ int main(int argc, char ** argv) {
             ASTNode * tree = statement(parser);
 
             int value = interpret(interpreter, tree);
-            printf("\n Value is : %d", value);
-            display_global_scope_variables(global_scope);
+            if(value == INT_MIN){
+                fprintf(stderr, "An error occurred in the interpreter");
+                free(interpreter);
+                free_global_scope(global_scope);
+                exit(EXIT_FAILURE);
+            }
+//            printf("\n Value is : %d", value);
+            printf("%d", value);
+//            display_global_scope_variables(global_scope);
 
 
 //            printf("\n Reverse Polish Notation : ");

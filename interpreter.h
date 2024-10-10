@@ -47,6 +47,7 @@ ASTNode * term(Parser * parser);
 ASTNode * expr(Parser * parser);
 //int interpret(ASTNode * node);
 int interpret(Interpreter * interpreter, ASTNode * node);
+void free_interpreter(Interpreter * interpreter);
 int visit_number_node( Interpreter * interpreter, ASTNode * node);
 void visit_assign_node( Interpreter * interpreter, ASTNode *node);
 int visit_var_node( Interpreter * interpreter, ASTNode *node);

@@ -77,6 +77,9 @@ ASTNode * factor(Parser * parser){
     }else if(token->type == TOKEN_IDENTIFIER){
         ASTNode * varNode = variable(parser);
         return varNode;
+    }else{
+        fprintf(stderr, "No factor could be parsed based on token type of value : %d", token->type);
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -204,9 +207,16 @@ ASTNode * assignment_statement(Parser * parser){
     return assignmentNode;
 }
 
+ASTNode * print_statement(Parser * parser){
+    consume_token(parser, TOKEN_KEYWORD_PRINT);
+    ASTNode * exprNode = expr(parser);
+    return exprNode;
+
+}
+
 /**
  *
- * statement : assignment_statement |
+ * statement : assignment_statement | print_statement
  *
  *
  * @param parser
@@ -219,7 +229,8 @@ ASTNode * statement(Parser * parser){
         ASTNode * assignmentNode = assignment_statement(parser);
         return assignmentNode;
     }else if(currToken->type == TOKEN_KEYWORD_PRINT){
-
+        ASTNode * node = print_statement(parser);
+        return node;
     }else{
         ASTNode * emptyNode = create_empty_node();
         return emptyNode;

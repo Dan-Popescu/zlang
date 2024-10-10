@@ -152,7 +152,6 @@ void free_reserved_keywords(RESERVED_KEYWORDS * reservedKeywords){
 Token * identifier(Lexer * lexer) {
     unsigned short capacity = 10;
     char *result = calloc(capacity, sizeof(char));
-    long index = 0;
     while (lexer->current_char != ' ' && lexer->current_char != ';' && isalpha(lexer->current_char)) {
         char currChar = lexer->current_char;
         long size = strlen(result);
@@ -179,6 +178,7 @@ Token * identifier(Lexer * lexer) {
             unsigned int tokenValueType = reservedKeywords->keywords[i]->token->valueType;
             char * tokenStrValue = calloc(strlen(keywordStr) + 1 ,
                                                   sizeof(char));
+            strcpy(tokenStrValue, keywordStr);
 
             Token * keywordToken = create_token(tokenType, tokenValueType, tokenStrValue);
 

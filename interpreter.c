@@ -30,6 +30,9 @@ void free_interpreter(Interpreter * interpreter){
 /////////////////////////////////////////////////////////////////////////////////////////
 
 int interpret(Interpreter * interpreter, ASTNode * node){
+
+    if(node == NULL) return INT_MIN;
+
     if(node->type == ASSIGNMENT_NODE){
         visit_assign_node(interpreter, node);
         return 100;
@@ -187,8 +190,6 @@ VariableScope * find_variable_in_global_scope(GLOBAL_SCOPE * globalScope, const 
 
 void set_variable_in_global_scope(GLOBAL_SCOPE * global_scope, VariableScope * var_scope){
     char * var_name_searched = var_scope->variableNode->varToken->value.strValue;
-     printf("\n var name searched : %s", var_name_searched);
-//    fflush(stdout);
     VariableScope * var_scope_found = find_variable_in_global_scope(global_scope, var_name_searched);
 
     if(var_scope_found){
@@ -198,7 +199,6 @@ void set_variable_in_global_scope(GLOBAL_SCOPE * global_scope, VariableScope * v
         free(var_scope_found->variableNode->varToken);
         free(var_scope_found->variableNode);
         if(var_scope_found->variableNode->valueType == STRING) free(var_scope_found->value.stringValue);
-//        free(var_scope_found);
         var_scope_found->variableNode = var_scope->variableNode;
         var_scope_found->value = var_scope->value;
         var_scope_found->variableNode->valueType = var_scope->variableNode->valueType;
@@ -271,7 +271,7 @@ void free_global_scope(GLOBAL_SCOPE * globalScope){
     if (globalScope == NULL) return;
 
     for (unsigned short idx = 0; idx < globalScope->size; ++idx) {
-        printf("\nFreeing variable at index %d\n", idx);
+//        printf("\nFreeing variable at index %d\n", idx);
         VariableScope * varScopeToFree = globalScope->variables[idx];
         if (varScopeToFree != NULL) {
             if (varScopeToFree->variableNode != NULL) {
