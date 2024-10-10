@@ -27,14 +27,17 @@ void free_interpreter(Interpreter * interpreter){
 }
 
 
-/////////////////////////////////////////////////////////////////////////////////////////
-
 int interpret(Interpreter * interpreter, ASTNode * node){
 
     if(node == NULL) return INT_MIN;
 
     if(node->type == ASSIGNMENT_NODE){
         visit_assign_node(interpreter, node);
+        // get value for the variable to which a value was assigned
+        char *var_name = node->node->assignOpNode->identifier->node->variableNode->varToken->value.strValue;
+        VariableScope * var_scope_found = find_variable_in_global_scope(interpreter->global_scope, var_name);
+        int value = var_scope_found->value.intValue;
+        return value;
         return 100;
     }else if(node->type == VARIABLE_NODE){
         return visit_var_node(interpreter, node);
@@ -49,8 +52,8 @@ int interpret(Interpreter * interpreter, ASTNode * node){
         return 0;
     }else {
 
-        printf("\nError: Invalid node type.\n");
-        printf("\n node type is : %d", node->type);
+        fprintf(stderr, "\nError: Invalid node type.\n");
+//        fprintf(stderr, "\n node type is : %d", node->type);
         return -1;
 //        exit(EXIT_FAILURE);
     }
@@ -115,12 +118,6 @@ void visit_assign_node( Interpreter * interpreter, ASTNode *node) {
 
     // create token representing the identifier
 
-//    Token * var_token = malloc(sizeof(Token));
-//    var_token->value.strValue = var_name;
-//    var_token->valueType = STRING;
-//    var_token->type = TOKEN_IDENTIFIER;
-//    var_node_to_add->varToken = var_token;
-
     Token * var_token = create_token(TOKEN_IDENTIFIER, STRING, var_name);
     var_node_to_add->varToken = var_token;
 
@@ -149,11 +146,11 @@ int visit_node( Interpreter * interpreter, ASTNode * node){
             return visit_unary_op_node(interpreter, node);
         case ASSIGNMENT_NODE:
             visit_assign_node(interpreter, node);
-            return 0;  // Les affectations ne retournent pas de valeur
+            return 0;
         case VARIABLE_NODE:
             return visit_var_node(interpreter, node);
         default:
-            fprintf(stderr, "\nError : invalid node type.\n");
+            fprintf(stderr, "\n In visit_node : Error : invalid node type.\n");
             exit(EXIT_FAILURE);
     }
 }

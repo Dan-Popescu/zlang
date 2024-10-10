@@ -16,7 +16,8 @@ typedef enum {
     UNARY_OPERATOR_NODE,
     VARIABLE_NODE,
     ASSIGNMENT_NODE,
-    EMPTY_NODE
+    EMPTY_NODE,
+    PRINT_NODE,
 } NodeType;
 
 typedef struct NumberNode NumberNode;
@@ -24,6 +25,7 @@ typedef struct BinaryOpNode BinaryOpNode;
 typedef struct UnaryOpNode UnaryOpNode;
 typedef struct VariableNode VariableNode;
 typedef struct AssignOpNode AssignOpNode;
+typedef struct PrintNode PrintNode;
 typedef struct EmptyNode EmptyNode;
 typedef struct ASTNode ASTNode;
 
@@ -67,6 +69,11 @@ struct AssignOpNode{
     Token * assignmentToken;
     ASTNode * expression;
 };
+
+//struct PrintNode{
+//    ASTNode * expression;
+//    ExpressionValue value;
+//};
 
 struct EmptyNode{};
 

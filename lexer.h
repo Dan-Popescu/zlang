@@ -29,6 +29,7 @@ typedef enum{
     TOKEN_KEYWORD, // reserved keywords in the language
     TOKEN_KEYWORD_PRINT,
     TOKEN_INSTRUCTION_END, // ;character
+    TOKEN_SEMI_COLON,
     TOKEN_EOF
 } TokenType;
 
@@ -63,8 +64,18 @@ typedef struct{
 } Token;
 
 typedef struct{
+    int intValue;
+    long longValue;
+    float floatValue;
+    double doubleValue;
+    char charValue;
+    char * strValue;
+} ExpressionValueUnion;
+
+
+typedef struct{
     unsigned int valueType;
-    void * value;
+    ExpressionValueUnion value;
 } ExpressionValue;
 
 typedef struct{

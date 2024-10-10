@@ -204,12 +204,15 @@ ASTNode * assignment_statement(Parser * parser){
     ASTNode * right = expr(parser);
     ASTNode * assignmentNode =  create_assignment_node(left, token, right);
 
+    consume_token(parser, TOKEN_SEMI_COLON);
+
     return assignmentNode;
 }
 
 ASTNode * print_statement(Parser * parser){
     consume_token(parser, TOKEN_KEYWORD_PRINT);
     ASTNode * exprNode = expr(parser);
+    consume_token(parser, TOKEN_SEMI_COLON);
     return exprNode;
 
 }

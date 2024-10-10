@@ -247,6 +247,11 @@ Token * get_next_token(Lexer * lexer){
             return create_token(TOKEN_RPAREN, CHAR, ")");
         }
 
+        if(lexer->current_char == ';'){
+            advance(lexer);
+            return create_token(TOKEN_SEMI_COLON, CHAR, ";");
+        }
+
         printf("\nError : Invalid character.\n");
         exit(EXIT_FAILURE);
     }
