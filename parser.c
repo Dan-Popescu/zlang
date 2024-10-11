@@ -26,6 +26,7 @@ void free_parser(Parser * parser){
     // free current token
     if(parser->current_token != NULL) free_token(parser->current_token);
     free(parser);
+    parser = NULL;
 }
 
 
@@ -204,7 +205,7 @@ ASTNode * assignment_statement(Parser * parser){
     ASTNode * right = expr(parser);
     ASTNode * assignmentNode =  create_assignment_node(left, token, right);
 
-    consume_token(parser, TOKEN_SEMI_COLON);
+//    consume_token(parser, TOKEN_SEMI_COLON);
 
     return assignmentNode;
 }
@@ -212,8 +213,11 @@ ASTNode * assignment_statement(Parser * parser){
 ASTNode * print_statement(Parser * parser){
     consume_token(parser, TOKEN_KEYWORD_PRINT);
     ASTNode * exprNode = expr(parser);
-    consume_token(parser, TOKEN_SEMI_COLON);
-    return exprNode;
+    ASTNode * printNode = create_print_node(exprNode);
+//    consume_token(parser, TOKEN_SEMI_COLON);
+
+    return printNode;
+//    return exprNode;
 
 }
 
@@ -226,7 +230,6 @@ ASTNode * print_statement(Parser * parser){
  * @return
  */
 ASTNode * statement(Parser * parser){
-//    @TODO complete later when we will have other kinds of statements
     Token * currToken = parser->current_token;
     if(currToken->type == TOKEN_IDENTIFIER){
         ASTNode * assignmentNode = assignment_statement(parser);
@@ -238,4 +241,56 @@ ASTNode * statement(Parser * parser){
         ASTNode * emptyNode = create_empty_node();
         return emptyNode;
     }
+}
+
+/**
+ * statements_list : statement |
+ *                   statement TOKEN_SEMI_COLON statements_list
+ *
+ * @param parser
+ * @return
+ */
+
+ASTNode * statements_list(Parser * parser){
+    // find first statement
+    ASTNode * stmtNode = statement(parser);
+
+    // allocate memory for 10 statements initially
+    unsigned short capacity = 10;
+    unsigned short size=1;
+    ASTNode ** nodes = malloc(capacity * sizeof(ASTNode *));
+    nodes[0] = stmtNode;
+
+    // identify/parser all other statements in input and store them in a list of nodes
+    while(parser->current_token->type == TOKEN_SEMI_COLON){
+        // check if size of the nodes list needs to be augmented
+        if(size >= capacity){
+            // double the capacity
+            ASTNode ** newNodes = malloc(2 * capacity * sizeof(ASTNode *));
+            for(unsigned short idx = 0; idx < capacity; ++idx){
+                if(idx <= size){
+                    newNodes[idx]=nodes[idx];
+                }else if(idx > size){
+                    newNodes[idx] = NULL;
+                }
+            }
+            free(nodes);
+            nodes = newNodes;
+            capacity *= 2;
+        }
+        consume_token(parser, TOKEN_SEMI_COLON);
+
+        // parse next statement
+        ASTNode * new_stmt_node = statement(parser);
+        if(new_stmt_node->type != EMPTY_NODE){
+            nodes[size] = new_stmt_node;
+            ++size;
+        }
+
+    }
+
+    // create a single ASTNode representing the entire statements node list
+    ASTNode * stmtListNode = create_statements_node_list(nodes, capacity, size);
+
+    return stmtListNode;
 }

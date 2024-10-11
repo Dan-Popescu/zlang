@@ -143,8 +143,14 @@ RESERVED_KEYWORDS * initialize_reserved_keywords(){
 
 void free_reserved_keywords(RESERVED_KEYWORDS * reservedKeywords){
     for (unsigned short i = 0; i < reservedKeywords->size; i++) {
-        free(reservedKeywords->keywords[i]->token);
-        free(reservedKeywords->keywords[i]);
+        RESERVED_KEYWORD * keyword = reservedKeywords->keywords[i];
+        Token * keywordToken = reservedKeywords->keywords[i]->token;
+        if(keywordToken != NULL){
+            free_token(reservedKeywords->keywords[i]->token);
+        }
+        if(keyword != NULL){
+            free(keyword);
+        }
     }
     free(reservedKeywords->keywords);
 }
@@ -165,7 +171,12 @@ Token * identifier(Lexer * lexer) {
             free(result);
             result = newResult;
         }
-        strcat(result, &currChar);
+
+        // update size in case of the reallocation with capacity doubling
+        size= strlen(result);
+        // append character
+        result[size] = currChar;
+        result[size+1] = '\0';
         advance(lexer);
     }
 

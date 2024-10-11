@@ -32,6 +32,7 @@ int main(int argc, char ** argv) {
         while(running) {
             printf("\n>>> ");
             if(fgets(expression, MAX_EXPRESSION_LENGTH, stdin) == NULL){
+                free(expression);
                 break;
             };
 
@@ -55,17 +56,12 @@ int main(int argc, char ** argv) {
 
 //            ASTNode * tree = expr(parser);
 
-            ASTNode * tree = statement(parser);
+//            ASTNode * tree = statement(parser);
+            ASTNode * tree = statements_list(parser);
 
             int value = interpret(interpreter, tree);
-            if(value == INT_MIN){
-                fprintf(stderr, "An error occurred in the interpreter");
-                free(interpreter);
-                free_global_scope(global_scope);
-                exit(EXIT_FAILURE);
-            }
 //            printf("\n Value is : %d", value);
-            printf("%d", value);
+//            printf("%d", value);
 
 //            display_global_scope_variables(global_scope);
 
@@ -75,10 +71,14 @@ int main(int argc, char ** argv) {
 
 
             // Free memory for interpreter, parser and lexer
-            free(interpreter);
+            free_interpreter(interpreter);
+            interpreter = NULL;
+            free_node(tree);
+            tree = NULL;
         }
 
         free_global_scope(global_scope);
+        global_scope = NULL;
 
     }else if(argc == 2){
         // check if file input is in correct format and file exists

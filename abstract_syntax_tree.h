@@ -18,6 +18,7 @@ typedef enum {
     ASSIGNMENT_NODE,
     EMPTY_NODE,
     PRINT_NODE,
+    STATEMENTS_LIST_NODE
 } NodeType;
 
 typedef struct NumberNode NumberNode;
@@ -26,6 +27,7 @@ typedef struct UnaryOpNode UnaryOpNode;
 typedef struct VariableNode VariableNode;
 typedef struct AssignOpNode AssignOpNode;
 typedef struct PrintNode PrintNode;
+typedef struct StatementsListNode StatementsListNode;
 typedef struct EmptyNode EmptyNode;
 typedef struct ASTNode ASTNode;
 
@@ -35,6 +37,8 @@ typedef union{
     UnaryOpNode * unaryOpNode;
     VariableNode * variableNode;
     AssignOpNode * assignOpNode;
+    PrintNode * printNode;
+    StatementsListNode * stmtListNode;
     EmptyNode * emptyNode;
 } NodeUnion;
 
@@ -70,10 +74,15 @@ struct AssignOpNode{
     ASTNode * expression;
 };
 
-//struct PrintNode{
-//    ASTNode * expression;
-//    ExpressionValue value;
-//};
+struct StatementsListNode{
+    unsigned short capacity;
+    unsigned short size;
+    ASTNode ** nodes;
+};
+
+struct PrintNode{
+    ASTNode * expression;
+};
 
 struct EmptyNode{};
 
@@ -83,6 +92,16 @@ ASTNode * create_binary_operator_node(Token * opToken, ASTNode * left, ASTNode *
 ASTNode * create_unary_operator_node(Token * token, ASTNode * expression);
 ASTNode * create_variable_node(Token * varToken);
 ASTNode * create_assignment_node(ASTNode * left, Token * assignmentToken, ASTNode * right);
+ASTNode * create_print_node(ASTNode * exprNode);
+ASTNode * create_statements_node_list(ASTNode ** nodes, unsigned short capacity, unsigned short size);
 ASTNode * create_empty_node();
+void free_node(ASTNode * node);
+void free_statements_list_node(ASTNode * node);
+void free_assignment_node(ASTNode * node);
+void free_number_node(ASTNode * node);
+void free_variable_node(ASTNode * node);
+void free_print_node(ASTNode * node);
+void free_unary_operator_node(ASTNode * node);
+void free_binary_operator_node(ASTNode * node);
 
 #endif //ZLANG_ABSTRACT_SYNTAX_TREE_H

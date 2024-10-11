@@ -24,6 +24,7 @@ ASTNode *  expr(Parser * parser);
 ASTNode * variable(Parser * parser);
 ASTNode * assignment_statement(Parser * parser);
 ASTNode * statement(Parser * parser);
+ASTNode * statements_list(Parser * parser);
 
 
 #endif //ZLANG_PARSER_H
