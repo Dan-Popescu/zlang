@@ -1,6 +1,7 @@
 //
+// Created by Charara on 10/20/2024.
 //
-//
+
 
 #include "lexer.h"
 
@@ -30,6 +31,8 @@ typedef struct PrintNode PrintNode;
 typedef struct StatementsListNode StatementsListNode;
 typedef struct EmptyNode EmptyNode;
 typedef struct ASTNode ASTNode;
+
+
 
 typedef union{
     NumberNode * numNode;

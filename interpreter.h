@@ -1,13 +1,14 @@
 //
-//
+// Created by Charara on 10/20/2024.
 //
 
-#include "abstract_syntax_tree.h"
-#include "lexer.h"
-#include "parser.h"
+
+
 
 #ifndef ZLANG_INTERPRETER_H
 #define ZLANG_INTERPRETER_H
+
+#include "parser.h"
 
 typedef struct GLOBAL_SCOPE GLOBAL_SCOPE;
 
@@ -48,11 +49,11 @@ ASTNode * expr(Parser * parser);
 //int interpret(ASTNode * node);
 int interpret(Interpreter * interpreter, ASTNode * node);
 void free_interpreter(Interpreter * interpreter);
-int visit_number_node( Interpreter * interpreter, ASTNode * node);
-void visit_assign_node( Interpreter * interpreter, ASTNode *node);
+int visit_number_node( Interpreter * interpreter, const ASTNode * node);
+void visit_assign_node( Interpreter * interpreter, const ASTNode *node);
 int visit_var_node( Interpreter * interpreter, ASTNode *node);
-int visit_bin_op_node( Interpreter * interpreter, ASTNode * node);
-int visit_unary_op_node( Interpreter * interpreter, ASTNode *node);
+int visit_bin_op_node( Interpreter * interpreter, const ASTNode * node);
+int visit_unary_op_node( Interpreter * interpreter, const ASTNode *node);
 int visit_node( Interpreter * interpreter,ASTNode * node);
 
 //int display_AST_RPN( Interpreter * interpreter, ASTNode * node);

@@ -1,14 +1,11 @@
 //
-//
+// Created by Charara on 10/20/2024.
 //
 
-#include "lexer.h"
-#include "abstract_syntax_tree.h"
-#include <ctype.h>
-#include <string.h>
 
 #ifndef ZLANG_PARSER_H
 #define ZLANG_PARSER_H
+#include "abstract_syntax_tree.h"
 
 typedef struct{
     Lexer * lexer;

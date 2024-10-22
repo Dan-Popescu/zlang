@@ -1,4 +1,8 @@
 //
+// Created by Charara on 10/20/2024.
+//
+
+//
 //
 //
 
@@ -13,7 +17,6 @@ typedef struct {
 
 typedef enum{
     TOKEN_NUMBER,
-//    TOKEN_OPERATOR,
     TOKEN_OPERATOR_PLUS,
     TOKEN_OPERATOR_MINUS,
     TOKEN_OPERATOR_MULT,
@@ -87,13 +90,12 @@ typedef struct{
     RESERVED_KEYWORD ** keywords;
 } RESERVED_KEYWORDS;
 
-Lexer * create_lexer(char *text);
+Lexer * create_lexer(const char *text);
 void free_lexer(Lexer * lexer);
 void advance(Lexer * lexer);
 void skip_whitespace(Lexer * lexer);
 int integer(Lexer * lexer);
-//Token * create_token(TokenType type, ValueType valueType, int value);
-Token * create_token(TokenType type, ValueType valueType, char * valueString);
+Token * create_token(TokenType type, ValueType valueType, const char * valueString);
 void free_token(Token * token);
 Token * identifier(Lexer * lexer);
 Token * get_next_token(Lexer * lexer);
