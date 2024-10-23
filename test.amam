@@ -1,0 +1,19 @@
+coucou = 10
+m = 10
+p = 5
+v = 2
+w = 10
+i = 5
+c = 10
+z = 6 / 2 * (v + w)
+x = 10
+y = x + 5
+print(y)
+a = 3 + 4 * 2 * 2 + 4 + x + y
+b = (1 + 2) * (2 * 3)
+q = ((10 / 2) * (((v + p) * 2) * v)) * coucou
+print(coucou + b)
+print(5 + 3)
+print(b)
+print(z)
+print(q)

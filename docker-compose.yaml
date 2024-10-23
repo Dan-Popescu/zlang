@@ -1,9 +1,0 @@
-
-services:
-  valgrind:
-    build: .
-    image: valgrind-c-env
-    container_name: valgrind_c_container
-    volumes:
-      - .:/usr/src/app
-    stdin_open: true
