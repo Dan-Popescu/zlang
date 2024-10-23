@@ -303,7 +303,7 @@ int main(int ac, char **av)
             {
                 break;
             }
-            input[strcspn(input, "\n")] = '\0'; // modifier la \n par \0
+            input[strcspn(input, "\n")] = '\0'; // modifier la \n par \0 strcspn return l'indice ou se trouve une valeur rechercher
             interpret(input);
         }
     }
