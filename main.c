@@ -190,7 +190,7 @@ int evaluate_expression(const char *expression)
             }
         }
     }
-    // en gros le premier groupes va gérer l'expression (total) le deuxième les priorithès avec les parenthèses ensuite 
+    // en gros le premier groupes va gérer l'expression "total" le deuxième les priorithès avec les parenthèses ensuite 
     // dans le 3eme on effctue les dernière opèration 
     return values[value_top]; // resultat final
 }
@@ -227,7 +227,8 @@ void interpret(char *input)
             //  printf("%s", value_token);
             int evaluated_value = evaluate_expression(value_token); 
             set_variable(var_name, evaluated_value);
-            printf("%s = %d\n", var_name, evaluated_value);
+            // si vous voulez verifier les assignations au variable décommenter la ligne en dessous 
+            // printf("%s = %d\n", var_name, evaluated_value);
         }
     }
     else
@@ -310,7 +311,7 @@ int main(int ac, char **av)
     else
     {
         // juste lancer l'executable sans argument ./mon_language
-        interpret("coucou = 2");
+        interpret("coucou = 10");
         interpret("n = 2");
         interpret("m = 10");
         interpret("p = 5");
@@ -338,6 +339,7 @@ int main(int ac, char **av)
         interpret("print(a)");              // Doit afficher 11
         interpret("print(b)");              // Doit afficher 6
         interpret("print(1 + 1)");          // Doit afficher 6
+        interpret("print(1 + 1 + y)");          // Doit afficher 6
     }
     return 0;
 }
