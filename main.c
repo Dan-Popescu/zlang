@@ -24,7 +24,6 @@ int main(int argc, char ** argv) {
         // attach an even handler to SIGINT ( event emitted when pressing Ctrl + C)
         signal(SIGINT, handle_sigint);
 
-
         // initialize global scope
         GLOBAL_SCOPE * global_scope = init_global_scope(20);
 
@@ -59,7 +58,7 @@ int main(int argc, char ** argv) {
 //            ASTNode * tree = statement(parser);
             ASTNode * tree = statements_list(parser);
 
-            int value = interpret(interpreter, tree);
+            int * res_val = interpret(interpreter, tree);
 //            printf("\n Value is : %d", value);
 //            printf("%d", value);
 
@@ -67,14 +66,16 @@ int main(int argc, char ** argv) {
 
             // Free memory for interpreter, parser and lexer
             free_interpreter(interpreter);
+            free(res_val);
             interpreter = NULL;
             free_node(tree);
             tree = NULL;
         }
+        if(global_scope != NULL){
+            free_global_scope(global_scope);
+        }
 
-        free_global_scope(global_scope);
         global_scope = NULL;
-
     }else if(argc == 2){
         // check if file input is in correct format and file exists
         // get second argument which corresponds to first user input passed to the executable

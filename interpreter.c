@@ -26,97 +26,122 @@ void free_interpreter(Interpreter * interpreter){
 }
 
 
-int interpret(Interpreter * interpreter, ASTNode * node){
+int * interpret(Interpreter * interpreter, ASTNode * node){
 
     if(node == NULL){
         fprintf(stderr, "Received NULL node parameter in interpret function.");
-        exit(EXIT_FAILURE);
+//        exit(EXIT_FAILURE);
+        return NULL;
     }
 
     if(node->type == STATEMENTS_LIST_NODE){
         return visit_node(interpreter, node);
-    }else if(node->type == ASSIGNMENT_NODE){
-        visit_assign_node(interpreter, node);
-        // get value for the variable to which a value was assigned
-        char *var_name = node->node->assignOpNode->identifier->node->variableNode->varToken->value.strValue;
-        VariableScope * var_scope_found = find_variable_in_global_scope(interpreter->global_scope, var_name);
-        int value = var_scope_found->value.intValue;
-        return value;
-    }else if(node->type == VARIABLE_NODE){
-        int * var_val = visit_var_node(interpreter, node);
-        if(var_val == NULL){
-            fprintf(stderr, "Variable not found.");
-            exit(EXIT_FAILURE);
-        }
-        return *var_val;
-//        return visit_var_node(interpreter, node);
-    }else if(node->type == UNARY_OPERATOR_NODE){
-        return visit_unary_op_node(interpreter, node);
     }
-    if(node->type == NUMBER_NODE){
-        return visit_number_node(interpreter, node);
-    }else if(node->type == BINARY_OPERATOR_NODE){
-        return visit_bin_op_node(interpreter, node);
-    }else if(node->type == EOF){
-        return 0;
-    }else {
+//    else if(node->type == ASSIGNMENT_NODE){
+//        visit_assign_node(interpreter, node);
+//        // get value for the variable to which a value was assigned
+//        char *var_name = node->node->assignOpNode->identifier->node->variableNode->varToken->value.strValue;
+//        VariableScope * var_scope_found = find_variable_in_global_scope(interpreter->global_scope, var_name);
+//        int value = var_scope_found->value.intValue;
+//        return value;
+//    }else if(node->type == VARIABLE_NODE){
+//        int * var_val = visit_var_node(interpreter, node);
+//        if(var_val == NULL){
+//            fprintf(stderr, "Variable not found.");
+//            exit(EXIT_FAILURE);
+//        }
+//        return *var_val;
+////        return visit_var_node(interpreter, node);
+//    }else if(node->type == UNARY_OPERATOR_NODE){
+//        return visit_unary_op_node(interpreter, node);
+//    }
+//    if(node->type == NUMBER_NODE){
+//        return visit_number_node(interpreter, node);
+//    }else if(node->type == BINARY_OPERATOR_NODE){
+//        return visit_bin_op_node(interpreter, node);
+//    }else if(node->type == EOF){
+//        return 0;
+//    }
+    else {
 
         fprintf(stderr, "\nError: Invalid node type.\n");
 //        fprintf(stderr, "\n node type is : %d", node->type);
-        return -1;
-//        exit(EXIT_FAILURE);
+        return NULL;
     }
 }
 
 
+int * visit_bin_op_node( Interpreter * interpreter, ASTNode * node){
+    int * left_ptr = visit_node(interpreter, node->node->binaryOpNode->left);
+    int * right_ptr = visit_node(interpreter, node->node->binaryOpNode->right);
+    int left_value = *left_ptr;
+    int right_value = *right_ptr;
 
+    int * result_val_ptr = malloc(sizeof(int));
 
-int visit_bin_op_node( Interpreter * interpreter, ASTNode * node){
-    int left_value = visit_node(interpreter, node->node->binaryOpNode->left);
-    int right_value = visit_node(interpreter, node->node->binaryOpNode->right);
 
     switch (node->node->binaryOpNode->operator->type){
         case TOKEN_OPERATOR_PLUS:
-            return left_value + right_value;
+            *result_val_ptr = left_value + right_value;
+            return result_val_ptr;
         case TOKEN_OPERATOR_MINUS:
-            return left_value - right_value;
+            *result_val_ptr = left_value - right_value;
+            return result_val_ptr;
         case TOKEN_OPERATOR_MULT:
-            return left_value * right_value;
+            *result_val_ptr = left_value * right_value;
+            return result_val_ptr;
         case TOKEN_OPERATOR_DIV:
             if (right_value == 0) {
                 printf("Error : Division by zero\n");
-                exit(EXIT_FAILURE);
+                return NULL;
             }
-            return left_value / right_value;
+            *result_val_ptr = left_value / right_value;
+            return result_val_ptr;
         default:
             printf("Error : Unknown operation.\n");
-            exit(EXIT_FAILURE);
+            return NULL;
+//            exit(EXIT_FAILURE);
     }
 }
 
-int visit_number_node( Interpreter * interpreter, ASTNode * node){
+int * visit_number_node( Interpreter * interpreter, ASTNode * node){
     NumberNode * numNode = node->node->numNode;
-//    printf("%d ", numNode->value);
-    return numNode->value;
+    int * ptr_val = malloc(sizeof(int));
+    *ptr_val = numNode->value;
+    return ptr_val;
+//    return numNode->value;
 }
 
-int visit_unary_op_node( Interpreter * interpreter, ASTNode *node) {
-    int expr_value = visit_node(interpreter, node->node->unaryOpNode->expression);
+int * visit_unary_op_node( Interpreter * interpreter, ASTNode *node) {
+    int * expr_value_ptr = visit_node(interpreter, node->node->unaryOpNode->expression);
+    int * ptr_val = malloc(sizeof(int));
 
-    switch (node->node->unaryOpNode->operator->valueType){
-        case TOKEN_OPERATOR_PLUS:
-            return +expr_value;
-        case TOKEN_OPERATOR_MINUS:
-            return -expr_value;
-        default:
-            printf("\nError : invalid unary operator.\n");
-            exit(EXIT_FAILURE);
+    if(expr_value_ptr == NULL){
+        fprintf(stderr, "Error : Unary operator node doesn't have an integer value to be applied to.");
+        return NULL;
     }
+
+    int expr_value = *expr_value_ptr;
+//    free(expr_value_ptr);
+
+    unsigned int value_type = node->node->unaryOpNode->operator->valueType;
+    if(value_type == TOKEN_OPERATOR_PLUS){
+        *ptr_val = +expr_value;
+    }else if(value_type == TOKEN_OPERATOR_MINUS){
+        *ptr_val = -expr_value;
+    }else{
+        printf("\nError : invalid unary operator.\n");
+        ptr_val = NULL;
+    }
+
+    return ptr_val;
 }
 
-void visit_assign_node( Interpreter * interpreter, ASTNode *node) {
+int * visit_assign_node( Interpreter * interpreter, ASTNode *node) {
     char *var_name = node->node->assignOpNode->identifier->node->variableNode->varToken->value.strValue;
-    int value = visit_node(interpreter, node->node->assignOpNode->expression);
+    int * ptr_value = visit_node(interpreter, node->node->assignOpNode->expression);
+    int value = *ptr_value;
+//    free(ptr_value);
     GLOBAL_SCOPE * global_scope = interpreter->global_scope;
     // Create variable scope to add to global scope
     VariableScope * var_scope_to_add = malloc(sizeof(VariableScope));
@@ -135,19 +160,12 @@ void visit_assign_node( Interpreter * interpreter, ASTNode *node) {
     var_scope_to_add->value.intValue = value;
 
     set_variable_in_global_scope(global_scope, var_scope_to_add);
+
+    int * success_ptr = malloc(sizeof(int));
+    *success_ptr = 0;
+    return success_ptr;
 }
 
-//int visit_var_node( Interpreter * interpreter, ASTNode *node) {
-//    char * varName = node->node->variableNode->varToken->value.strValue;
-//    GLOBAL_SCOPE * global_scope = interpreter->global_scope;
-//    VariableScope * varScopeFound = find_variable_in_global_scope(global_scope, varName);
-//    if(varScopeFound && varScopeFound->value.intValue){
-//        int value = varScopeFound->value.intValue;
-//        return value;
-//    }
-//
-//    return -1222; // @TODO
-//}
 
 int * visit_var_node( Interpreter * interpreter, ASTNode *node) {
     char * varName = node->node->variableNode->varToken->value.strValue;
@@ -162,25 +180,35 @@ int * visit_var_node( Interpreter * interpreter, ASTNode *node) {
     return NULL;
 }
 
-void visit_print_node(Interpreter * interpreter, ASTNode * node){
-    int value = visit_node(interpreter, node->node->printNode->expression);
-    printf("%d", value);
+int * visit_print_node(Interpreter * interpreter, ASTNode * node){
+    int * value = visit_node(interpreter, node->node->printNode->expression);
+    if(value != NULL){
+        printf("%d", *value);
+        int * success_ptr = malloc(sizeof(int));
+        *success_ptr = 0;
+        return success_ptr;
+    }else{
+        return NULL;
+    }
 }
 
-int visit_statements_list(Interpreter * interpreter, ASTNode * node){
+int * visit_statements_list(Interpreter * interpreter, ASTNode * node){
     if(node == NULL){
         fprintf(stderr, "Int visit_statements_list : node parameter pointer must be a non null "
                         "pointer to a valid ASTNode");
-        exit(EXIT_FAILURE);
+        return NULL;
+//        exit(EXIT_FAILURE);
     }
     if(node->type != STATEMENTS_LIST_NODE){
         fprintf(stderr, "Int visit_statements_list : Expected node of type STATEMENTS_LIST_NODE.");
-        exit(EXIT_FAILURE);
+//        exit(EXIT_FAILURE);
+        return NULL;
     }
     if(node->node->stmtListNode == NULL){
         fprintf(stderr, "Int visit_statements_list : node parameter pointer should point "
                         "to a valid ASTNode of type STATEMENTS_LIST_NODE that has a non null list of statement nodes");
-        exit(EXIT_FAILURE);
+//        exit(EXIT_FAILURE);
+        return NULL;
     }
 
 //    unsigned short capacity = node->node->stmtListNode->capacity;
@@ -194,27 +222,31 @@ int visit_statements_list(Interpreter * interpreter, ASTNode * node){
     return 0;
 }
 
-int visit_node( Interpreter * interpreter, ASTNode * node){
-    switch (node->type) {
-        case NUMBER_NODE:
-            return visit_number_node(interpreter, node);
-        case BINARY_OPERATOR_NODE:
-            return visit_bin_op_node(interpreter, node);
-        case UNARY_OPERATOR_NODE:
-            return visit_unary_op_node(interpreter, node);
-        case ASSIGNMENT_NODE:
-            visit_assign_node(interpreter, node);
-            return 100;
-        case VARIABLE_NODE:
-            return visit_var_node(interpreter, node);
-        case PRINT_NODE:
-            visit_print_node(interpreter, node);
-            return 0;
-        case STATEMENTS_LIST_NODE:
-            return visit_statements_list(interpreter, node);
-        default:
-            fprintf(stderr, "\n In visit_node : Error : invalid node type.\n");
-            exit(EXIT_FAILURE);
+int * visit_node( Interpreter * interpreter, ASTNode * node){
+    if(node->type == NUMBER_NODE){
+        int *ptr_val = visit_number_node(interpreter, node);
+        return ptr_val;
+    }else if (node->type == BINARY_OPERATOR_NODE){
+        return visit_bin_op_node(interpreter, node);
+    }else if (node->type == UNARY_OPERATOR_NODE){
+        return visit_unary_op_node(interpreter, node);
+    }else if(node->type == ASSIGNMENT_NODE){
+        return visit_assign_node(interpreter, node);
+    }else if(node->type == VARIABLE_NODE){
+        int * var_val = visit_var_node(interpreter, node);
+        if(var_val == NULL){
+            fprintf(stderr, "Variable not found");
+            return NULL;
+        }
+        return var_val;
+    }else if(node->type == PRINT_NODE){
+        return visit_print_node(interpreter, node);
+    }else if(node->type == STATEMENTS_LIST_NODE){
+        return visit_statements_list(interpreter, node);
+    }else{
+        fprintf(stderr, "\n Invalid node type encountered.\n");
+        return NULL;
+//        exit(EXIT_FAILURE);
     }
 }
 
@@ -234,8 +266,7 @@ GLOBAL_SCOPE * init_global_scope(unsigned short initialCapacity){
     if(globalScope->variables == NULL){
         fprintf(stderr, "\nIn interpreter.c in function init_global_scope the following error has occurred : "
                         "Memory allocation failed for variables array");
-        free(globalScope);  // Libère la mémoire pour éviter les fuites
-        exit(EXIT_FAILURE);
+        return NULL;
     }
 
     for(unsigned short idx = 0; idx < globalScope->capacity; ++idx){

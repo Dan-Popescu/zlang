@@ -224,7 +224,7 @@ ASTNode * print_statement(Parser * parser){
     consume_token(parser, TOKEN_KEYWORD_PRINT);
     ASTNode * exprNode = expr(parser);
     ASTNode * printNode = create_print_node(exprNode);
-//    consume_token(parser, TOKEN_SEMI_COLON);
+    consume_token(parser, TOKEN_SEMI_COLON);
 
     return printNode;
 //    return exprNode;
