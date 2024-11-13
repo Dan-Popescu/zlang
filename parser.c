@@ -29,6 +29,16 @@ void free_parser(Parser * parser){
     parser = NULL;
 }
 
+/**
+ * Helper function that allows to check that current token is of the expected type based on language
+ * grammar rule
+ * This function that checks whether the current token is of the expected type
+ * If the token is of the expected type, it updates the parser to hold the next type,
+ * otherwise an error message is printed and the program exits
+ *
+ * @param parser
+ * @param tokenType
+ */
 
 void consume_token(Parser * parser, TokenType tokenType){
     if(parser->current_token->type == tokenType){

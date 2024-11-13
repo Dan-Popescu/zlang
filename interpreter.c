@@ -43,7 +43,13 @@ int interpret(Interpreter * interpreter, ASTNode * node){
         int value = var_scope_found->value.intValue;
         return value;
     }else if(node->type == VARIABLE_NODE){
-        return visit_var_node(interpreter, node);
+        int * var_val = visit_var_node(interpreter, node);
+        if(var_val == NULL){
+            fprintf(stderr, "Variable not found.");
+            exit(EXIT_FAILURE);
+        }
+        return *var_val;
+//        return visit_var_node(interpreter, node);
     }else if(node->type == UNARY_OPERATOR_NODE){
         return visit_unary_op_node(interpreter, node);
     }
@@ -131,16 +137,29 @@ void visit_assign_node( Interpreter * interpreter, ASTNode *node) {
     set_variable_in_global_scope(global_scope, var_scope_to_add);
 }
 
-int visit_var_node( Interpreter * interpreter, ASTNode *node) {
+//int visit_var_node( Interpreter * interpreter, ASTNode *node) {
+//    char * varName = node->node->variableNode->varToken->value.strValue;
+//    GLOBAL_SCOPE * global_scope = interpreter->global_scope;
+//    VariableScope * varScopeFound = find_variable_in_global_scope(global_scope, varName);
+//    if(varScopeFound && varScopeFound->value.intValue){
+//        int value = varScopeFound->value.intValue;
+//        return value;
+//    }
+//
+//    return -1222; // @TODO
+//}
+
+int * visit_var_node( Interpreter * interpreter, ASTNode *node) {
     char * varName = node->node->variableNode->varToken->value.strValue;
     GLOBAL_SCOPE * global_scope = interpreter->global_scope;
     VariableScope * varScopeFound = find_variable_in_global_scope(global_scope, varName);
     if(varScopeFound && varScopeFound->value.intValue){
         int value = varScopeFound->value.intValue;
-        return value;
+        int * var_value = malloc(sizeof(int));
+        *var_value = value;
+        return var_value;
     }
-
-    return -1222;
+    return NULL;
 }
 
 void visit_print_node(Interpreter * interpreter, ASTNode * node){

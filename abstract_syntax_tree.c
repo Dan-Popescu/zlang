@@ -442,7 +442,7 @@ void free_statements_list_node(ASTNode * node){
     for(unsigned short idx = 0; idx < size; ++idx){
         ASTNode * node_to_free = node->node->stmtListNode->nodes[idx];
         if(node_to_free != NULL){
-            printf("\n Freing the node with index from the statements list: %d", idx);
+//            printf("\n Freing the node with index from the statements list: %d", idx);
 //            printf("\n size of the node list is : %d", size);
 //            printf("\n capacity of the node list is : %d", capacity);
             free_node(node_to_free);

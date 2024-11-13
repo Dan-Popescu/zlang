@@ -65,11 +65,6 @@ int main(int argc, char ** argv) {
 
 //            display_global_scope_variables(global_scope);
 
-
-//            printf("\n Reverse Polish Notation : ");
-//            display_AST_RPN(tree);
-
-
             // Free memory for interpreter, parser and lexer
             free_interpreter(interpreter);
             interpreter = NULL;
