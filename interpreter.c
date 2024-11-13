@@ -76,9 +76,10 @@ int * visit_bin_op_node( Interpreter * interpreter, ASTNode * node){
     int * right_ptr = visit_node(interpreter, node->node->binaryOpNode->right);
     int left_value = *left_ptr;
     int right_value = *right_ptr;
+    free(left_ptr);
+    free(right_ptr);
 
     int * result_val_ptr = malloc(sizeof(int));
-
 
     switch (node->node->binaryOpNode->operator->type){
         case TOKEN_OPERATOR_PLUS:
@@ -100,7 +101,6 @@ int * visit_bin_op_node( Interpreter * interpreter, ASTNode * node){
         default:
             printf("Error : Unknown operation.\n");
             return NULL;
-//            exit(EXIT_FAILURE);
     }
 }
 
@@ -141,7 +141,7 @@ int * visit_assign_node( Interpreter * interpreter, ASTNode *node) {
     char *var_name = node->node->assignOpNode->identifier->node->variableNode->varToken->value.strValue;
     int * ptr_value = visit_node(interpreter, node->node->assignOpNode->expression);
     int value = *ptr_value;
-//    free(ptr_value);
+    free(ptr_value);
     GLOBAL_SCOPE * global_scope = interpreter->global_scope;
     // Create variable scope to add to global scope
     VariableScope * var_scope_to_add = malloc(sizeof(VariableScope));
@@ -197,17 +197,14 @@ int * visit_statements_list(Interpreter * interpreter, ASTNode * node){
         fprintf(stderr, "Int visit_statements_list : node parameter pointer must be a non null "
                         "pointer to a valid ASTNode");
         return NULL;
-//        exit(EXIT_FAILURE);
     }
     if(node->type != STATEMENTS_LIST_NODE){
         fprintf(stderr, "Int visit_statements_list : Expected node of type STATEMENTS_LIST_NODE.");
-//        exit(EXIT_FAILURE);
         return NULL;
     }
     if(node->node->stmtListNode == NULL){
         fprintf(stderr, "Int visit_statements_list : node parameter pointer should point "
                         "to a valid ASTNode of type STATEMENTS_LIST_NODE that has a non null list of statement nodes");
-//        exit(EXIT_FAILURE);
         return NULL;
     }
 
@@ -216,10 +213,13 @@ int * visit_statements_list(Interpreter * interpreter, ASTNode * node){
 
     for(unsigned short idx=0; idx < size; ++idx){
         ASTNode * node_to_visit = node->node->stmtListNode->nodes[idx];
-        visit_node(interpreter, node_to_visit);
+        int *res_val = visit_node(interpreter, node_to_visit);
+        free(res_val);
     }
 
-    return 0;
+    int * success_ptr = malloc(sizeof(int));
+    *success_ptr = 0;
+    return success_ptr;
 }
 
 int * visit_node( Interpreter * interpreter, ASTNode * node){
@@ -405,14 +405,16 @@ void free_global_scope(GLOBAL_SCOPE * globalScope){
                         varScopeToFree->variableNode->varToken->value.strValue = NULL;
                     }
                     free(varScopeToFree->variableNode->varToken);
+                    varScopeToFree->variableNode->varToken = NULL;
                 }
-                free(varScopeToFree->variableNode);
             }
             if (varScopeToFree->variableNode->valueType == STRING &&
                 varScopeToFree->value.stringValue != NULL) {
                 free(varScopeToFree->value.stringValue);
             }
+            free(varScopeToFree->variableNode);
             free(varScopeToFree);
+            varScopeToFree = NULL;
         }
     }
 

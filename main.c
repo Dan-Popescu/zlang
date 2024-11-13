@@ -41,6 +41,7 @@ int main(int argc, char ** argv) {
 
             // check is user wants to exit either by typing exit
             if (strncmp(expression, "exit", 4) == 0 || strncmp(expression, "exit;", 5) == 0) {
+                free(expression);
                 running = 0;
                 continue;
             }
@@ -53,13 +54,10 @@ int main(int argc, char ** argv) {
             Parser * parser = create_parser(lexer);
             Interpreter * interpreter = create_interpreter(parser, global_scope);
 
-//            ASTNode * tree = expr(parser);
-
-//            ASTNode * tree = statement(parser);
             ASTNode * tree = statements_list(parser);
 
             int * res_val = interpret(interpreter, tree);
-//            printf("\n Value is : %d", value);
+//            printf("\n Value is : %d", *value);
 //            printf("%d", value);
 
 //            display_global_scope_variables(global_scope);
@@ -74,8 +72,6 @@ int main(int argc, char ** argv) {
         if(global_scope != NULL){
             free_global_scope(global_scope);
         }
-
-        global_scope = NULL;
     }else if(argc == 2){
         // check if file input is in correct format and file exists
         // get second argument which corresponds to first user input passed to the executable

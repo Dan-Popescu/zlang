@@ -56,18 +56,6 @@ int integer(Lexer * lexer){
     return result;
 }
 
-//Token * create_token(TokenType type, ValueType valueType, int value){
-//    Token * token = (Token *)malloc(sizeof(Token));
-//    if (token == NULL) {
-//        fprintf(stderr, "Memory allocation failed for token.\n");
-//        exit(EXIT_FAILURE);
-//    }
-//    token->type = type;
-//    token->valueType = valueType;
-//    token->value.intValue = value;
-//    return token;
-//}
-
 Token * create_token(TokenType type, ValueType valueType, char * valueString){
     Token * token = (Token *)malloc(sizeof(Token));
     if (token == NULL) {
@@ -153,6 +141,7 @@ void free_reserved_keywords(RESERVED_KEYWORDS * reservedKeywords){
         }
     }
     free(reservedKeywords->keywords);
+    free(reservedKeywords);
 }
 
 Token * identifier(Lexer * lexer) {
@@ -196,6 +185,9 @@ Token * identifier(Lexer * lexer) {
             free_reserved_keywords(reservedKeywords);
             return keywordToken;
         }
+    }
+    if(reservedKeywords != NULL){
+        free_reserved_keywords(reservedKeywords);
     }
 
     Token * token = create_token(TOKEN_IDENTIFIER, STRING, result);
@@ -263,7 +255,7 @@ Token * get_next_token(Lexer * lexer){
             return create_token(TOKEN_SEMI_COLON, CHAR, ";");
         }
 
-        printf("\nError : Invalid character.\n");
+        printf("\nError : Invalid character : %c\n", lexer->current_char);
         exit(EXIT_FAILURE);
     }
     return create_token(TOKEN_EOF, INT, "-1");
