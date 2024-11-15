@@ -74,6 +74,10 @@ int * interpret(Interpreter * interpreter, ASTNode * node){
 int * visit_bin_op_node( Interpreter * interpreter, ASTNode * node){
     int * left_ptr = visit_node(interpreter, node->node->binaryOpNode->left);
     int * right_ptr = visit_node(interpreter, node->node->binaryOpNode->right);
+
+    if(left_ptr == NULL) return NULL;
+    if(right_ptr == NULL) return NULL;
+
     int left_value = *left_ptr;
     int right_value = *right_ptr;
     free(left_ptr);
@@ -184,6 +188,7 @@ int * visit_print_node(Interpreter * interpreter, ASTNode * node){
     int * value = visit_node(interpreter, node->node->printNode->expression);
     if(value != NULL){
         printf("%d", *value);
+        free(value);
         int * success_ptr = malloc(sizeof(int));
         *success_ptr = 0;
         return success_ptr;
@@ -208,7 +213,6 @@ int * visit_statements_list(Interpreter * interpreter, ASTNode * node){
         return NULL;
     }
 
-//    unsigned short capacity = node->node->stmtListNode->capacity;
     unsigned short size = node->node->stmtListNode->size;
 
     for(unsigned short idx=0; idx < size; ++idx){
@@ -235,7 +239,7 @@ int * visit_node( Interpreter * interpreter, ASTNode * node){
     }else if(node->type == VARIABLE_NODE){
         int * var_val = visit_var_node(interpreter, node);
         if(var_val == NULL){
-            fprintf(stderr, "Variable not found");
+            fprintf(stderr, "Undefined variable");
             return NULL;
         }
         return var_val;

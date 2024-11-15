@@ -65,6 +65,14 @@ Token * create_token(TokenType type, ValueType valueType, char * valueString){
     token->type = type;
     token->valueType = valueType;
 
+    token->value.strValue = NULL;
+    token->value.intValue = 0;
+    token->value.floatValue = 0;
+    token->value.longValue = 0;
+    token->value.charValue = 0;
+    token->value.doubleValue = 0;
+
+
     if(valueType == INT) {
         token->value.intValue = strtod(valueString, NULL);
         int value = token->value.intValue;
@@ -123,6 +131,11 @@ RESERVED_KEYWORDS * initialize_reserved_keywords(){
         reservedKeywords->keywords[i]->token->type = tokenTypes[i];
         reservedKeywords->keywords[i]->token->valueType = STRING;
         reservedKeywords->keywords[i]->token->value.strValue = calloc(strlen(lexemes[i]) + 1, sizeof(char));
+        reservedKeywords->keywords[i]->token->value.charValue = 0;
+        reservedKeywords->keywords[i]->token->value.intValue = 0;
+        reservedKeywords->keywords[i]->token->value.longValue = 0;
+        reservedKeywords->keywords[i]->token->value.floatValue = 0;
+        reservedKeywords->keywords[i]->token->value.doubleValue = 0;
         strcpy(reservedKeywords->keywords[i]->token->value.strValue, lexemes[i]);
     }
 
@@ -141,7 +154,9 @@ void free_reserved_keywords(RESERVED_KEYWORDS * reservedKeywords){
         }
     }
     free(reservedKeywords->keywords);
+    reservedKeywords->keywords = NULL;
     free(reservedKeywords);
+    reservedKeywords = NULL;
 }
 
 Token * identifier(Lexer * lexer) {
@@ -153,6 +168,7 @@ Token * identifier(Lexer * lexer) {
         if (size >= capacity - 1) {
             char *newResult = calloc(capacity * 2, sizeof(char));
 
+            // copy characters in the new extended string
             for (int i = 0; i < capacity; ++i) {
                 if(i<=size) newResult[i] = result[i];
                 else newResult[i] = '\0';
@@ -164,7 +180,11 @@ Token * identifier(Lexer * lexer) {
         // update size in case of the reallocation with capacity doubling
         size= strlen(result);
         // append character
-        result[size] = currChar;
+        char * char_to_append = calloc(2, sizeof(char));
+        char_to_append[0] = currChar;
+        strcat(result, char_to_append);
+//        result[size] = currChar;
+//        printf("result : %s", result);
         result[size+1] = '\0';
         advance(lexer);
     }
@@ -265,6 +285,8 @@ void free_token(Token * token){
     if(token == NULL) return;
     if(token->valueType == STRING && token->value.strValue != NULL) {
         free(token->value.strValue);
+        token->value.strValue = NULL;
     }
     free(token);
+    token = NULL;
 }

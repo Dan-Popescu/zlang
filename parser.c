@@ -40,10 +40,44 @@ void free_parser(Parser * parser){
  * @param tokenType
  */
 
+//void consume_token(Parser * parser, TokenType tokenType){
+//    if(parser->current_token->type == tokenType){
+////        free(parser->current_token);
+////        free_token(parser->current_token);
+////        parser->current_token = malloc(sizeof(Token));
+//        parser->current_token = get_next_token(parser->lexer);
+//    }else{
+//        printf("\nError. Invalid syntax.\n");
+//        exit(EXIT_FAILURE);
+//    }
+//}
+
+
+// V2
+//void consume_token(Parser * parser, TokenType tokenType){
+//    if(parser->current_token->type == tokenType){
+//
+////        if(parser->current_token->value.strValue != NULL){
+////            free(parser->current_token->value.strValue);
+////            parser->current_token->value.strValue = NULL;
+////        }
+//        free(parser->current_token);
+//        parser->current_token = get_next_token(parser->lexer);
+//    }else{
+//        printf("\nError. Invalid syntax.\n");
+//        exit(EXIT_FAILURE);
+//    }
+//}
+
 void consume_token(Parser * parser, TokenType tokenType){
     if(parser->current_token->type == tokenType){
+          if(parser->current_token->value.strValue != NULL){
+            free(parser->current_token->value.strValue);
+            parser->current_token->value.strValue = NULL;
+        }
         free(parser->current_token);
-        parser->current_token = get_next_token(parser->lexer);
+        Token * next_token = get_next_token(parser->lexer);
+        parser->current_token = next_token;
     }else{
         printf("\nError. Invalid syntax.\n");
         exit(EXIT_FAILURE);
@@ -183,6 +217,10 @@ ASTNode * variable(Parser * parser){
     currToken->type = parser->current_token->type;
     currToken->valueType = parser->current_token->valueType;
     currToken->value = parser->current_token->value;
+//    currToken->value.strValue = parser->current_token->value.strValue;
+    currToken->value.strValue = calloc(strlen(parser->current_token->value.strValue)+1,
+                                       sizeof(char));
+    strcpy(currToken->value.strValue, parser->current_token->value.strValue);
 
     ASTNode * varNode = create_variable_node(currToken);
     consume_token(parser, TOKEN_IDENTIFIER);

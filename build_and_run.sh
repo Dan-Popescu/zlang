@@ -7,7 +7,7 @@ cmake ..
 # Compile project
 make
 
-# Rung program with valgrind checks
+# Runs program with valgrind checks
 if [ -f "./zlang" ]; then
     valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes -s ./zlang
 else
