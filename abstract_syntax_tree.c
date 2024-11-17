@@ -604,7 +604,7 @@ void free_empty_node(ASTNode * node){
 void free_node(ASTNode *node) {
     if (!node) return;
 
-    // Vérifiez si le type est valide
+    // Verify if type is valid
     if (node->type < NUMBER_NODE || node->type > FOR_NODE) {
         fprintf(stderr, "Error: invalid node type (%d) cannot be deallocated.\n", node->type);
         return;
@@ -641,14 +641,6 @@ void free_node(ASTNode *node) {
         case FOR_NODE:
             free_for_node(node);
             break;
-//        case EMPTY_NODE:  // Si `5` est `EMPTY_NODE`
-//            printf("Freeing EMPTY_NODE...\n");
-//            if (node->node && node->node->emptyNode) {
-//                free(node->node->emptyNode);
-//            }
-//            free(node->node);
-//            free(node);
-//            break;
         default:
             fprintf(stderr, "Error: invalid node type (%d) cannot be deallocated.\n", node->type);
     }
@@ -681,18 +673,15 @@ ASTNode *create_while_node(ASTNode *condition, ASTNode *body) {
     whileNode->condition = condition;
     whileNode->body = body;
 
-    // Allocation mémoire pour le nœud ASTNode
     ASTNode *node = malloc(sizeof(ASTNode));
     if (!node) {
         fprintf(stderr, "Memory allocation failed for ASTNode.\n");
-        free(whileNode); // Libération mémoire pour éviter les fuites
+        free(whileNode);
         return NULL;
     }
 
-    // Initialisation du type de nœud
     node->type = WHILE_NODE;
 
-    // Allocation mémoire pour le NodeUnion
     node->node = malloc(sizeof(NodeUnion));
     if (!node->node) {
         fprintf(stderr, "Memory allocation failed for NodeUnion.\n");
@@ -701,7 +690,6 @@ ASTNode *create_while_node(ASTNode *condition, ASTNode *body) {
         return NULL;
     }
 
-    // Association du WhileNode au NodeUnion
     node->node->whileNode = whileNode;
 
     return node;
