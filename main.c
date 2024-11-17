@@ -26,9 +26,15 @@ int main(int argc, char ** argv) {
         // initialize global scope
         GLOBAL_SCOPE * global_scope = init_global_scope(20);
 
+        unsigned short iter = 0;
+
         // no file input was provided, behave as REPL
         while(running) {
-            printf("\n>>> ");
+            if(iter == 0){
+                printf(">>> ");
+            }else{
+                printf("\n>>> ");
+            }
             if(fgets(expression, MAX_EXPRESSION_LENGTH, stdin) == NULL){
                 free(expression);
                 break;
@@ -117,7 +123,7 @@ int main(int argc, char ** argv) {
 
             file_content[length] = '\0';
 
-            printf("file content : %s", file_content);
+//            printf("file content : %s", file_content);
 
             Lexer * lexer = create_lexer(file_content);
             Parser * parser = create_parser(lexer);
