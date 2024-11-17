@@ -53,7 +53,8 @@ int * visit_var_node( Interpreter * interpreter, ASTNode *node);
 int * visit_bin_op_node( Interpreter * interpreter, ASTNode * node);
 int * visit_unary_op_node( Interpreter * interpreter, ASTNode *node);
 int * visit_node( Interpreter * interpreter,ASTNode * node);
-
+int * visit_for_node(Interpreter *interpreter, ASTNode *node); 
+int * visit_while_node(Interpreter * interpreter, ASTNode * node);
 //int display_AST_RPN( Interpreter * interpreter, ASTNode * node);
 
 GLOBAL_SCOPE * init_global_scope(unsigned short initialCapacity);

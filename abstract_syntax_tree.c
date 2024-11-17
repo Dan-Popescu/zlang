@@ -6,6 +6,15 @@
 #include <stdlib.h>
 
 
+
+/**
+ * Creates a new AST node for a number.
+ * @param tokenType - The type of token (e.g., integer, float).
+ * @param valueType - The data type of the value (e.g., INT, DOUBLE).
+ * @param value - The numeric value.
+ * @return A pointer to the created ASTNode.
+ */
+
 ASTNode * create_number_node(TokenType tokenType, ValueType valueType, int value){
     NumberNode * numNode = malloc(sizeof(NumberNode));
     if(numNode == NULL){
@@ -57,6 +66,16 @@ ASTNode * create_number_node(TokenType tokenType, ValueType valueType, int value
     return node;
 }
 
+
+
+/**
+ * Creates a new AST node for a binary operation.
+ * @param opToken - The token representing the operator.
+ * @param left - The left operand.
+ * @param right - The right operand.
+ * @return A pointer to the created ASTNode.
+ */
+
 ASTNode * create_binary_operator_node(Token * opToken, ASTNode * left, ASTNode * right ){
     BinaryOpNode * binOpNode = malloc(sizeof(BinaryOpNode));
     if(binOpNode == NULL){
@@ -84,6 +103,12 @@ ASTNode * create_binary_operator_node(Token * opToken, ASTNode * left, ASTNode *
     node->node->binaryOpNode = binOpNode;
     return node;
 }
+
+
+/**
+ * Frees a binary operator node and all its children.
+ * @param node - The binary operator node to free.
+ */
 
 void free_binary_operator_node(ASTNode * node){
     if(node == NULL) return;
@@ -119,6 +144,15 @@ void free_binary_operator_node(ASTNode * node){
     free(node);
 }
 
+
+
+/**
+ * Creates a new AST node for a unary operation.
+ * @param token - The token representing the unary operator.
+ * @param expression - The operand for the unary operator.
+ * @return A pointer to the created ASTNode.
+ */
+
 ASTNode * create_unary_operator_node(Token * token, ASTNode * expression){
     UnaryOpNode * unaryOpNode = malloc(sizeof(UnaryOpNode));
     if(unaryOpNode == NULL){
@@ -145,6 +179,15 @@ ASTNode * create_unary_operator_node(Token * token, ASTNode * expression){
     node->node->unaryOpNode = unaryOpNode;
     return node;
 }
+
+
+
+/**
+ *
+ * Frees a unary operator AST node and its child nodes.
+ *
+ * @param node - The unary operator AST node to free.
+ */
 
 void free_unary_operator_node(ASTNode * node){
     if(node == NULL) return;
@@ -174,6 +217,12 @@ void free_unary_operator_node(ASTNode * node){
 
 
 
+/**
+ * Creates a new AST node for a variable.
+ * @param varToken - The token representing the variable.
+ * @return A pointer to the created ASTNode.
+ */
+
 ASTNode * create_variable_node(Token * varToken){
     VariableNode * varNode = malloc(sizeof(VariableNode));
     if(varNode == NULL){
@@ -201,6 +250,13 @@ ASTNode * create_variable_node(Token * varToken){
     return node;
 }
 
+
+
+/**
+ * Frees a variable node.
+ * @param node - The variable node to free.
+ */
+
 void free_variable_node(ASTNode * node){
     if(node == NULL) return;
     if(node->type != VARIABLE_NODE) return;
@@ -225,6 +281,14 @@ void free_variable_node(ASTNode * node){
 
 }
 
+
+/**
+ * Creates a new AST node for an assignment operation.
+ * @param left - The variable being assigned.
+ * @param assignmentToken - The token representing the assignment (=).
+ * @param right - The value to assign.
+ * @return A pointer to the created ASTNode.
+ */
 
 ASTNode * create_assignment_node(ASTNode * left, Token * assignmentToken, ASTNode * right){
     AssignOpNode * assignOpNode = malloc(sizeof(AssignOpNode));
@@ -254,6 +318,14 @@ ASTNode * create_assignment_node(ASTNode * left, Token * assignmentToken, ASTNod
 
     return node;
 }
+
+/**
+ * Creates a new AST node for a list of statements.
+ * @param nodes - Array of AST nodes representing statements.
+ * @param capacity - The capacity of the array.
+ * @param size - The current number of statements.
+ * @return A pointer to the created ASTNode.
+ */
 
 ASTNode * create_statements_node_list(ASTNode ** nodes, unsigned short capacity, unsigned short size){
     ASTNode * ast_node = malloc(sizeof(ASTNode));
@@ -292,6 +364,13 @@ ASTNode * create_statements_node_list(ASTNode ** nodes, unsigned short capacity,
     return ast_node;
 }
 
+
+/**
+ * Creates a new AST node for a print statement.
+ * @param exprNode - The expression to print.
+ * @return A pointer to the created ASTNode.
+ */
+
 ASTNode * create_print_node(ASTNode * exprNode){
     PrintNode * printNode = malloc(sizeof(PrintNode));
     if(printNode == NULL){
@@ -323,6 +402,12 @@ ASTNode * create_print_node(ASTNode * exprNode){
     return node;
 }
 
+
+/**
+ * Frees a print node and its children.
+ * @param node - The print node to free.
+ */
+
 void free_print_node(ASTNode * node){
     if(node == NULL) return;
     if(node->type != PRINT_NODE) return;
@@ -348,8 +433,12 @@ void free_print_node(ASTNode * node){
 }
 
 
+/**
+ * Creates a new empty AST node.
+ * @return A pointer to the created ASTNode.
+ */
+
 ASTNode * create_empty_node(){
-    printf("Creating empty node");
     EmptyNode * emptyNode = malloc(sizeof(EmptyNode));
     if(emptyNode == NULL){
         fprintf(stderr, "\nIn abstract_syntax_tree.c in function create_empty_node Line 350 :"
@@ -375,6 +464,14 @@ ASTNode * create_empty_node(){
     return node;
 }
 
+
+/**
+ *
+ * Frees a number AST node and its associated token.
+ *
+ * @param node - The number AST node to free.
+ */
+
 void free_number_node(ASTNode * node){
     if(node == NULL) return;
     if(node->type != NUMBER_NODE) return;
@@ -399,6 +496,10 @@ void free_number_node(ASTNode * node){
 }
 
 
+/**
+ * Frees an assignment node and its children.
+ * @param node - The assignment node to free.
+ */
 
 void free_assignment_node(ASTNode * node){
     if(node == NULL) return;
@@ -427,6 +528,12 @@ void free_assignment_node(ASTNode * node){
     free(node->node);
     free(node);
 }
+
+
+/**
+ * Frees a statement list node and its child nodes.
+ * @param node - The statement list node to free.
+ */
 
 void free_statements_list_node(ASTNode * node){
     if(node == NULL) return;
@@ -459,6 +566,7 @@ void free_statements_list_node(ASTNode * node){
     return;
 }
 
+
 void free_empty_node(ASTNode * node){
     printf("\nFreeing empty node");
     if(node == NULL) return;
@@ -487,9 +595,23 @@ void free_empty_node(ASTNode * node){
 
 }
 
-void free_node(ASTNode * node){
-    if(node == NULL) return;
-    switch(node->type){
+/**
+ * Frees an AST node, determining its type to properly free child nodes.
+ * @param node - The AST node to free.
+ */
+
+
+void free_node(ASTNode *node) {
+    if (!node) return;
+
+    // Vérifiez si le type est valide
+    if (node->type < NUMBER_NODE || node->type > FOR_NODE) {
+        fprintf(stderr, "Error: invalid node type (%d) cannot be deallocated.\n", node->type);
+        return;
+    }
+
+
+    switch (node->type) {
         case NUMBER_NODE:
             free_number_node(node);
             break;
@@ -508,14 +630,193 @@ void free_node(ASTNode * node){
         case PRINT_NODE:
             free_print_node(node);
             break;
-        case STATEMENTS_LIST_NODE:
+        case STATEMENTS_LIST_NODE:  // Si `5` correspond ici
             free_statements_list_node(node);
             break;
         case EMPTY_NODE:
             free_empty_node(node);
+        case WHILE_NODE:
+            free_while_node(node);
             break;
+        case FOR_NODE:
+            free_for_node(node);
+            break;
+//        case EMPTY_NODE:  // Si `5` est `EMPTY_NODE`
+//            printf("Freeing EMPTY_NODE...\n");
+//            if (node->node && node->node->emptyNode) {
+//                free(node->node->emptyNode);
+//            }
+//            free(node->node);
+//            free(node);
+//            break;
         default:
-            fprintf(stderr, "\n In free_node : Error : invalid node cannot be deallocated");
-            exit(EXIT_FAILURE);
+            fprintf(stderr, "Error: invalid node type (%d) cannot be deallocated.\n", node->type);
     }
+
+}
+
+
+/**
+ *
+ * Creates a new AST node for a while loop.
+ *
+ * @param condition - The condition AST node for the while loop.
+ * @param body - The body AST node (statements to execute while condition is true).
+ * @return - A pointer to the created ASTNode.
+ */
+
+ASTNode *create_while_node(ASTNode *condition, ASTNode *body) {
+    // Vérification des paramètres
+    if (!condition || !body) {
+        fprintf(stderr, "Error: Invalid parameters passed to create_while_node.\n");
+        return NULL;
+    }
+
+    // Allocation mémoire pour le nœud WhileNode
+    WhileNode *whileNode = malloc(sizeof(WhileNode));
+    if (!whileNode) {
+        fprintf(stderr, "Memory allocation failed for WhileNode.\n");
+        return NULL;
+    }
+    whileNode->condition = condition;
+    whileNode->body = body;
+
+    // Allocation mémoire pour le nœud ASTNode
+    ASTNode *node = malloc(sizeof(ASTNode));
+    if (!node) {
+        fprintf(stderr, "Memory allocation failed for ASTNode.\n");
+        free(whileNode); // Libération mémoire pour éviter les fuites
+        return NULL;
+    }
+
+    // Initialisation du type de nœud
+    node->type = WHILE_NODE;
+
+    // Allocation mémoire pour le NodeUnion
+    node->node = malloc(sizeof(NodeUnion));
+    if (!node->node) {
+        fprintf(stderr, "Memory allocation failed for NodeUnion.\n");
+        free(whileNode); // Libération mémoire pour WhileNode
+        free(node);      // Libération mémoire pour ASTNode
+        return NULL;
+    }
+
+    // Association du WhileNode au NodeUnion
+    node->node->whileNode = whileNode;
+
+    return node;
+}
+
+
+/**
+ *
+ * Creates a new AST node for a for loop.
+ *
+ * @param initialisation - The initialization AST node for the loop.
+ * @param condition - The condition AST node for the loop continuation.
+ * @param incrementation - The increment AST node for the loop variable.
+ * @param body - The body AST node (statements to execute in each iteration).
+ * @return - A pointer to the created ASTNode.
+ */
+
+ASTNode *create_for_node(ASTNode *initialisation, ASTNode *condition, ASTNode *incrementation, ASTNode *body) {
+    if (!initialisation || !condition || !incrementation || !body) {
+        return NULL;
+    }
+
+    ForNode *forNode = malloc(sizeof(ForNode));
+    if (!forNode) {
+        exit(EXIT_FAILURE);
+    }
+
+    forNode->initialisation = initialisation;
+    forNode->condition = condition;
+    forNode->incrementation = incrementation;
+    forNode->body = body;
+
+    ASTNode *node = malloc(sizeof(ASTNode));
+    if (!node) {
+        free(forNode);
+        exit(EXIT_FAILURE);
+    }
+
+    node->type = FOR_NODE;
+    node->node = malloc(sizeof(NodeUnion));
+    if (!node->node) {
+        free(forNode);
+        free(node);
+        exit(EXIT_FAILURE);
+    }
+
+    node->node->forNode = forNode;
+    return node;
+}
+
+
+/**
+ *
+ * Frees a for loop AST node and its child nodes.
+ *
+ * @param node - The for loop AST node to free.
+ */
+
+void free_for_node(ASTNode *node) {
+    if (!node || node->type != FOR_NODE || !node->node || !node->node->forNode) {
+        return;
+    }
+
+    ForNode *forNode = node->node->forNode;
+
+    if (forNode->initialisation) {
+        free_node(forNode->initialisation);
+    }
+    if (forNode->condition) {
+        free_node(forNode->condition);
+    }
+    if (forNode->incrementation) {
+        free_node(forNode->incrementation);
+    }
+    if (forNode->body) {
+        free_node(forNode->body);
+    }
+
+    free(forNode);
+    free(node->node);
+    free(node);
+}
+
+
+
+/**
+ *
+ * Frees a while loop AST node and its child nodes.
+ *
+ * @param node - The while loop AST node to free.
+ */
+
+void free_while_node(ASTNode *node) {
+    // Vérification de la validité du nœud
+    if (!node || node->type != WHILE_NODE || !node->node || !node->node->whileNode) {
+        fprintf(stderr, "Error: invalid WHILE_NODE cannot be deallocated.\n");
+        return;
+    }
+
+    WhileNode *whileNode = node->node->whileNode;
+
+    // Libérer le nœud de la condition
+    if (whileNode->condition) {
+        free_node(whileNode->condition);
+    }
+
+    // Libérer le nœud du corps
+    if (whileNode->body) {
+        free_node(whileNode->body);
+    }
+
+    // Libérer la structure WhileNode
+    free(whileNode);
+
+    // Libérer la structure NodeUnion et le nœud principal
+    free(node->node);
+    free(node);
 }

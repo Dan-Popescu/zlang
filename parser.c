@@ -8,6 +8,18 @@
 #include "lexer.h"
 #include "abstract_syntax_tree.h"
 
+
+
+
+/**
+ *
+ * Creates a Parser object to analyze tokenized source code.
+ *
+ * @param lexer - The lexer used to provide tokens.
+ * @return - A pointer to the created Parser.
+ */
+
+
 Parser * create_parser(Lexer * lexer){
     Parser * parser = (Parser *)malloc(sizeof(Parser));
     if (parser == NULL) {
@@ -16,8 +28,17 @@ Parser * create_parser(Lexer * lexer){
     }
     parser->lexer = lexer;
     parser->current_token = get_next_token(lexer);
-    return parser;
+    return parser; 
 }
+
+
+
+/**
+ *
+ * Frees the memory allocated for a Parser, including its lexer and current token.
+ *
+ * @param parser - The Parser to free.
+ */
 
 void free_parser(Parser * parser){
     if(parser == NULL) return;
@@ -35,45 +56,16 @@ void free_parser(Parser * parser){
     parser = NULL;
 }
 
+
 /**
- * Helper function that allows to check that current token is of the expected type based on language
- * grammar rule
- * This function that checks whether the current token is of the expected type
- * If the token is of the expected type, it updates the parser to hold the next type,
- * otherwise an error message is printed and the program exits
  *
- * @param parser
- * @param tokenType
+ * Ensures the current token is of the expected type and advances to the next token.
+ * If the token does not match the expected type, raises a syntax error.
+ *
+ * @param parser - The Parser managing tokens.
+ * @param tokenType - The expected type of the current token.
  */
 
-//void consume_token(Parser * parser, TokenType tokenType){
-//    if(parser->current_token->type == tokenType){
-////        free(parser->current_token);
-////        free_token(parser->current_token);
-////        parser->current_token = malloc(sizeof(Token));
-//        parser->current_token = get_next_token(parser->lexer);
-//    }else{
-//        printf("\nError. Invalid syntax.\n");
-//        exit(EXIT_FAILURE);
-//    }
-//}
-
-
-// V2
-//void consume_token(Parser * parser, TokenType tokenType){
-//    if(parser->current_token->type == tokenType){
-//
-////        if(parser->current_token->value.strValue != NULL){
-////            free(parser->current_token->value.strValue);
-////            parser->current_token->value.strValue = NULL;
-////        }
-//        free(parser->current_token);
-//        parser->current_token = get_next_token(parser->lexer);
-//    }else{
-//        printf("\nError. Invalid syntax.\n");
-//        exit(EXIT_FAILURE);
-//    }
-//}
 
 void consume_token(Parser * parser, TokenType tokenType){
     if(parser->current_token->type == tokenType){
@@ -90,13 +82,15 @@ void consume_token(Parser * parser, TokenType tokenType){
     }
 }
 
+
 /**
  *
- * factor (PLUS | MINUS) factor | INTEGER | LPAREN expr RPAREN | variable
+ * Parses a factor, which can be a unary operator, a number, a parenthesized expression, or a variable.
  *
- * @param parser
- * @return
+ * @param parser - The Parser performing the analysis.
+ * @return - An ASTNode representing the factor.
  */
+
 ASTNode * factor(Parser * parser){
 
     Token * token = malloc(sizeof(Token));
@@ -140,11 +134,12 @@ ASTNode * factor(Parser * parser){
 
 /**
  *
- * term : factor ( (MULT | DIV) * factor)*
+ * Parses a term composed of factors connected by multiplication or division operators.
  *
- * @param parser
- * @return
+ * @param parser - The Parser performing the analysis.
+ * @return - An ASTNode representing the term.
  */
+
 
 ASTNode * term(Parser * parser){
     ASTNode * left = factor(parser);
@@ -174,17 +169,42 @@ ASTNode * term(Parser * parser){
 
 /**
  *
+ * Parses an expression composed of terms connected by addition or subtraction operators,
+ * or containing comparison operators (<, >, <=, >=).
  *
- * expr : term ( (PLUS | MINUS) term)*
- * term : factor ( (MUL | DIV) * factor)*
- * factor : (PLUS | MINUS) factor | INTEGER | LPAREN expr RPAREN | variable
- *
- * @param parser
- * @return
+ * @param parser - The Parser performing the analysis.
+ * @return - An ASTNode representing the expression.
  */
+
 
 ASTNode *  expr(Parser * parser){
     ASTNode * left = term(parser);
+
+    while(parser->current_token->type == TOKEN_OPERATOR_LESS_THAN ||
+          parser->current_token->type == TOKEN_OPERATOR_GREATER_THAN) {
+
+        // Création d'une copie du token actuel
+        Token * token = malloc(sizeof(Token));
+        token->type = parser->current_token->type;
+        token->value = parser->current_token->value;
+        token->valueType = parser->current_token->valueType;
+
+        // Consommer le token de comparaison
+        if (token->type == TOKEN_OPERATOR_LESS_THAN) {
+            consume_token(parser, TOKEN_OPERATOR_LESS_THAN);
+        } else if (token->type == TOKEN_OPERATOR_GREATER_THAN) {
+            consume_token(parser, TOKEN_OPERATOR_GREATER_THAN);
+        }
+
+        // Analyse de l'expression à droite du comparateur
+        ASTNode * right = term(parser);
+
+        // Créer un nœud binaire pour le comparateur
+        ASTNode * node = create_binary_operator_node(token, left, right);
+
+        // Le nouveau nœud devient le côté gauche pour les prochains calculs
+        left = node;
+    }
 
     while(parser->current_token->type == TOKEN_OPERATOR_PLUS ||
           parser->current_token->type == TOKEN_OPERATOR_MINUS){
@@ -211,14 +231,14 @@ ASTNode *  expr(Parser * parser){
 }
 
 
-
 /**
  *
- * variable : TOKEN_IDENTIFIER
+ * Parses a variable (an identifier) in the source code.
  *
- * @param parser
- * @return
+ * @param parser - The Parser performing the analysis.
+ * @return - An ASTNode representing the variable.
  */
+
 
 ASTNode * variable(Parser * parser){
 
@@ -238,13 +258,15 @@ ASTNode * variable(Parser * parser){
     return varNode;
 }
 
+
 /**
  *
- * assignment_statement : VARIABLE TOKEN_ASSIGNMENT_OPERATOR expr
+ * Parses an assignment statement of the form `variable = expression`.
  *
- * @param parser
- * @return
+ * @param parser - The Parser performing the analysis.
+ * @return - An ASTNode representing the assignment statement.
  */
+
 ASTNode * assignment_statement(Parser * parser){
 
     // create node with the identifier of the variable
@@ -268,6 +290,17 @@ ASTNode * assignment_statement(Parser * parser){
     return assignmentNode;
 }
 
+
+
+
+/**
+ *
+ * Parses a `print(expression)` statement to display a value.
+ *
+ * @param parser - The Parser performing the analysis.
+ * @return - An ASTNode representing the `print` statement.
+ */
+
 ASTNode * print_statement(Parser * parser){
     consume_token(parser, TOKEN_KEYWORD_PRINT);
     ASTNode * exprNode = expr(parser);
@@ -279,34 +312,57 @@ ASTNode * print_statement(Parser * parser){
 
 }
 
+
 /**
  *
- * statement : assignment_statement | print_statement
+ * Parses a generic statement: assignment, print, loop, or a block of code.
  *
- *
- * @param parser
- * @return
+ * @param parser - The Parser performing the analysis.
+ * @return - An ASTNode representing the statement.
  */
-ASTNode * statement(Parser * parser){
+
+ASTNode * statement(Parser * parser) {
+    
     Token * currToken = parser->current_token;
-    if(currToken->type == TOKEN_IDENTIFIER){
+
+    // Gestion des points-virgules isolés
+    if (currToken->type == TOKEN_SEMI_COLON) {
+        printf("Skipping isolated semi-colon in statement.\n");
+        consume_token(parser, TOKEN_SEMI_COLON);
+        return create_empty_node();
+    }
+
+    if (currToken->type == TOKEN_IDENTIFIER) {
         ASTNode * assignmentNode = assignment_statement(parser);
         return assignmentNode;
-    }else if(currToken->type == TOKEN_KEYWORD_PRINT){
+        // return assignment_statement(parser);
+    } else if (currToken->type == TOKEN_KEYWORD_PRINT) {
         ASTNode * node = print_statement(parser);
         return node;
-    }else{
-        ASTNode * emptyNode = create_empty_node();
-        return emptyNode;
+        // return print_statement(parser);
+    } else if (currToken->type == TOKEN_KEYWORD_WHILE) {
+        ASTNode * whileNode = while_statement(parser);
+        return whileNode;
+        // return while_statement(parser);
+    } else if (currToken->type == TOKEN_KEYWORD_FOR) {
+        ASTNode * forNode = for_statement(parser);
+        return forNode;
+        // return for_statement(parser);
+    } else if (currToken->type == TOKEN_LBRACE) {
+        return block(parser);
+    } else {
+        return create_empty_node();
     }
 }
 
+
+
 /**
- * statements_list : statement |
- *                   statement TOKEN_SEMI_COLON statements_list
  *
- * @param parser
- * @return
+ * Parses a list of statements separated by semicolons.
+ *
+ * @param parser - The Parser performing the analysis.
+ * @return - An ASTNode representing the list of statements.
  */
 
 ASTNode * statements_list(Parser * parser){
@@ -351,4 +407,190 @@ ASTNode * statements_list(Parser * parser){
     free(nodes);
 
     return stmtListNode;
+}
+
+
+/**
+ *
+ * Parses a `while(condition) { body }` loop.
+ *
+ * @param parser - The Parser performing the analysis.
+ * @return - An ASTNode representing the `while` loop.
+ */
+
+ASTNode *while_statement(Parser *parser) {
+    // Consomme le mot-clé 'while'
+    consume_token(parser, TOKEN_KEYWORD_WHILE);
+
+    // Consomme le parenthèse ouvrante '('
+    consume_token(parser, TOKEN_LPAREN);
+
+    // Analyse la condition de la boucle
+    ASTNode *condition = expr(parser);
+    if (!condition) {
+        fprintf(stderr, "Error: Failed to parse condition in while_statement.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Vérifie que la condition n'est pas un EMPTY_NODE
+    if (condition->type == EMPTY_NODE) {
+        fprintf(stderr, "Error: Condition in while loop is invalid (EMPTY_NODE).\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Consomme le parenthèse fermante ')'
+    consume_token(parser, TOKEN_RPAREN);
+
+    // Analyse le corps de la boucle
+    ASTNode *body = statement(parser);
+    if (!body) {
+        fprintf(stderr, "Error: Failed to parse body in while_statement.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Vérifie que le corps n'est pas un EMPTY_NODE
+    if (body->type == EMPTY_NODE) {
+        fprintf(stderr, "Error: Body of while loop is invalid (EMPTY_NODE).\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Crée et retourne un nœud de type "while"
+    ASTNode *whileNode = create_while_node(condition, body);
+    if (!whileNode) {
+        fprintf(stderr, "Error: Failed to create while node.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    return whileNode;
+}
+
+
+
+/**
+ *
+ * Parses a `for(initialization; condition; increment) { body }` loop.
+ *
+ * @param parser - The Parser performing the analysis.
+ * @return - An ASTNode representing the `for` loop.
+ */
+
+ASTNode * for_statement(Parser * parser) {
+
+
+    consume_token(parser, TOKEN_KEYWORD_FOR);
+
+    consume_token(parser, TOKEN_LPAREN);
+
+    ASTNode *initialisation = statement(parser);
+    if (!initialisation) {
+        fprintf(stderr, "Error: Failed to parse 'initialisation' in for loop.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (parser->current_token->type == TOKEN_SEMI_COLON) {
+        consume_token(parser, TOKEN_SEMI_COLON);
+    } else {
+        fprintf(stderr, "Error: Missing semi-colon after 'initialisation' in for loop. Current token: %d\n", parser->current_token->type);
+        exit(EXIT_FAILURE);
+    }   
+
+
+    ASTNode *condition = expr(parser);
+    if (!condition) {
+        fprintf(stderr, "Error: Failed to parse 'condition' in for loop.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (parser->current_token->type == TOKEN_SEMI_COLON) {
+        consume_token(parser, TOKEN_SEMI_COLON);
+    } else {
+        fprintf(stderr, "Error: Missing semi-colon after 'condition' in for loop. Current token: %d\n", parser->current_token->type);
+        exit(EXIT_FAILURE);
+    }
+
+    ASTNode *incrementation = statement(parser);
+    if (!incrementation) {
+        fprintf(stderr, "Error: Failed to parse 'incrementation' in for loop.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (parser->current_token->type == TOKEN_RPAREN) {
+        consume_token(parser, TOKEN_RPAREN);
+    } else {
+        fprintf(stderr, "Error: Missing closing parenthesis ')' in for loop. Current token: %d\n", parser->current_token->type);
+        exit(EXIT_FAILURE);
+    }
+
+    
+    ASTNode *body = NULL;
+    if (parser->current_token->type == TOKEN_LBRACE) {
+        body = block(parser);
+    } else {
+        body = statement(parser);
+    }
+    if (!body) {
+        fprintf(stderr, "Error: Failed to parse 'body' in for loop.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    return create_for_node(initialisation, condition, incrementation, body);
+}
+
+
+
+
+/**
+ *
+ * Parses a block of code enclosed in `{}` containing multiple statements.
+ *
+ * @param parser - The Parser performing the analysis.
+ * @return - An ASTNode representing the block of code.
+ */
+
+
+ASTNode * block(Parser * parser) {
+
+    consume_token(parser, TOKEN_LBRACE);
+
+    // Initialise la liste des instructions
+    unsigned short capacity = 10;
+    unsigned short size = 0;
+    ASTNode **statements = malloc(capacity * sizeof(ASTNode *));
+    if (!statements) {
+        fprintf(stderr, "Error: Memory allocation failed for block statements.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    while (parser->current_token->type != TOKEN_RBRACE) {
+
+        // Ignore les points-virgules isolés
+        if (parser->current_token->type == TOKEN_SEMI_COLON) {
+            consume_token(parser, TOKEN_SEMI_COLON);
+            continue;
+        }
+
+        ASTNode *stmt = statement(parser);
+        if (stmt->type != EMPTY_NODE) {
+            statements[size++] = stmt;
+        } else {
+            fprintf(stderr, "Error: Unexpected EMPTY_NODE in block. Current token: %d.\n", parser->current_token->type);
+            free(statements);
+            exit(EXIT_FAILURE);
+        }
+
+        if (size >= capacity) {
+            capacity *= 2;
+            statements = realloc(statements, capacity * sizeof(ASTNode *));
+            if (!statements) {
+                fprintf(stderr, "Error: Memory reallocation failed in block.\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+    }
+
+    
+    consume_token(parser, TOKEN_RBRACE);
+
+ 
+    return create_statements_node_list(statements, capacity, size);
 }
