@@ -53,7 +53,6 @@ int *interpret(Interpreter *interpreter, ASTNode *node)
     if (node == NULL)
     {
         fprintf(stderr, "Received NULL node parameter in interpret function.");
-        //        exit(EXIT_FAILURE);
         return NULL;
     }
 
@@ -61,36 +60,9 @@ int *interpret(Interpreter *interpreter, ASTNode *node)
     {
         return visit_node(interpreter, node);
     }
-    //    else if(node->type == ASSIGNMENT_NODE){
-    //        visit_assign_node(interpreter, node);
-    //        // get value for the variable to which a value was assigned
-    //        char *var_name = node->node->assignOpNode->identifier->node->variableNode->varToken->value.strValue;
-    //        VariableScope * var_scope_found = find_variable_in_global_scope(interpreter->global_scope, var_name);
-    //        int value = var_scope_found->value.intValue;
-    //        return value;
-    //    }else if(node->type == VARIABLE_NODE){
-    //        int * var_val = visit_var_node(interpreter, node);
-    //        if(var_val == NULL){
-    //            fprintf(stderr, "Variable not found.");
-    //            exit(EXIT_FAILURE);
-    //        }
-    //        return *var_val;
-    ////        return visit_var_node(interpreter, node);
-    //    }else if(node->type == UNARY_OPERATOR_NODE){
-    //        return visit_unary_op_node(interpreter, node);
-    //    }
-    //    if(node->type == NUMBER_NODE){
-    //        return visit_number_node(interpreter, node);
-    //    }else if(node->type == BINARY_OPERATOR_NODE){
-    //        return visit_bin_op_node(interpreter, node);
-    //    }else if(node->type == EOF){
-    //        return 0;
-    //    }
     else
     {
-
         fprintf(stderr, "\nError: Invalid node type.\n");
-        //        fprintf(stderr, "\n node type is : %d", node->type);
         return NULL;
     }
 }
@@ -161,7 +133,6 @@ int *visit_number_node(Interpreter *interpreter, ASTNode *node)
     int *ptr_val = malloc(sizeof(int));
     *ptr_val = numNode->value;
     return ptr_val;
-    //    return numNode->value;
 }
 
 /**
@@ -225,7 +196,6 @@ int *visit_assign_node(Interpreter *interpreter, ASTNode *node)
     var_node_to_add->valueType = INT;
 
     // create token representing the identifier
-
     Token *var_token = create_token(TOKEN_IDENTIFIER, STRING, var_name);
     var_node_to_add->varToken = var_token;
 
@@ -274,7 +244,7 @@ int *visit_print_node(Interpreter *interpreter, ASTNode *node)
     int *value = visit_node(interpreter, node->node->printNode->expression);
     if (value != NULL)
     {
-        printf("%d", *value);
+        printf("%d\n", *value);
         free(value);
         int *success_ptr = malloc(sizeof(int));
         *success_ptr = 0;
@@ -450,7 +420,7 @@ int *visit_node(Interpreter *interpreter, ASTNode *node)
     }
     else if (node->type == EMPTY_NODE)
     {
-        printf("Visiting EMPTY_NODE...\n");
+//        printf("Visiting EMPTY_NODE...\n");
         int *success = malloc(sizeof(int));
         *success = 0;
         return success;
@@ -459,7 +429,6 @@ int *visit_node(Interpreter *interpreter, ASTNode *node)
     {
         fprintf(stderr, "\n Invalid node type encountered.\n");
         return NULL;
-        //        exit(EXIT_FAILURE);
     }
 }
 
@@ -701,40 +670,3 @@ void free_global_scope(GLOBAL_SCOPE *globalScope)
     free(globalScope->variables);
     free(globalScope);
 }
-// void interpret_file(const char * filepath){
-//     FILE * f = fopen(filepath, "r");
-//     if(f == NULL) {
-//         printf("\nUnable to open file.");
-//         exit(EXIT_FAILURE);
-//     }
-//
-//     char buffer[MAX_EXPRESSION_LENGTH] = {0};
-//     for(int i = 0; i < MAX_EXPRESSION_LENGTH; ++i){
-//         buffer[i] = '\0';
-//     }
-//     unsigned char inside_statement = 0;
-//     long charIdx = 0;
-//
-//     char c = getc(f);
-//     while( c != EOF){
-//
-//         buffer[charIdx] = c;
-//         ++charIdx;
-//
-//         if(c == ';'){
-//             // TODO : call to an evaluate_statement function that needs to be coded
-//
-//             // Reset buffer
-//             for(int i =0; i < MAX_EXPRESSION_LENGTH; ++i){
-//                 buffer[i] = '\0';
-//             }
-//         }else{
-//             // If the instruction is not yet complete add space, to make it easier to parse tokens later
-//             buffer[charIdx] = ' ';
-//             ++charIdx;
-//         }
-//
-//     }
-//
-//     fclose(f);
-// }

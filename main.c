@@ -18,7 +18,6 @@ void handle_sigint(int sig){
 int main(int argc, char ** argv) {
 
     if(argc == 1){
-//        repl();
         char *expression = calloc(MAX_EXPRESSION_LENGTH, sizeof(char));
 
         // attach an even handler to SIGINT ( event emitted when pressing Ctrl + C)
@@ -79,7 +78,6 @@ int main(int argc, char ** argv) {
         }else if(file_input_check == FILE_DOES_NOT_EXIST){
             printf("\nFile does not exist");
         }else if(file_input_check == VALID_INPUT){
-//            printf("\nFile input OK\n");
 
             // File processing logic
             FILE *file = fopen(filepath, "r");
