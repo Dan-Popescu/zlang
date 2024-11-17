@@ -228,7 +228,7 @@ Token * get_next_token(Lexer * lexer){
 
         if(isdigit(lexer->current_char)){
             int value = integer(lexer);
-            char * intStrValue = calloc(32, sizeof(char));
+            char * intStrValue = calloc(4, sizeof(char));
             sprintf(intStrValue, "%d", value);
 //            return create_token(TOKEN_NUMBER, INT, integer(lexer));
             return create_token(TOKEN_NUMBER, INT, intStrValue);

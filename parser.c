@@ -22,9 +22,15 @@ Parser * create_parser(Lexer * lexer){
 void free_parser(Parser * parser){
     if(parser == NULL) return;
     // free the lexer
-    if(parser->lexer != NULL) free_lexer(parser->lexer);
+    if(parser->lexer != NULL){
+        free_lexer(parser->lexer);
+        parser->lexer = NULL;
+    }
     // free current token
-    if(parser->current_token != NULL) free_token(parser->current_token);
+    if(parser->current_token != NULL){
+        free_token(parser->current_token);
+        parser->current_token = NULL;
+    }
     free(parser);
     parser = NULL;
 }
