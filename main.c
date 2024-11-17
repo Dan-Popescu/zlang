@@ -57,7 +57,7 @@ int main(int argc, char ** argv) {
 
             int * res_val = interpret(interpreter,tree);
 
-            display_global_scope_variables(global_scope);
+//            display_global_scope_variables(global_scope);
 
             // Free memory for interpreter, parser and lexer
             free_interpreter(interpreter);
@@ -116,6 +116,8 @@ int main(int argc, char ** argv) {
             }
 
             file_content[length] = '\0';
+
+            printf("file content : %s", file_content);
 
             Lexer * lexer = create_lexer(file_content);
             Parser * parser = create_parser(lexer);

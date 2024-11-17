@@ -302,14 +302,12 @@ ASTNode * assignment_statement(Parser * parser){
  */
 
 ASTNode * print_statement(Parser * parser){
+
     consume_token(parser, TOKEN_KEYWORD_PRINT);
     ASTNode * exprNode = expr(parser);
     ASTNode * printNode = create_print_node(exprNode);
-    consume_token(parser, TOKEN_SEMI_COLON);
 
     return printNode;
-//    return exprNode;
-
 }
 
 
@@ -335,19 +333,15 @@ ASTNode * statement(Parser * parser) {
     if (currToken->type == TOKEN_IDENTIFIER) {
         ASTNode * assignmentNode = assignment_statement(parser);
         return assignmentNode;
-        // return assignment_statement(parser);
     } else if (currToken->type == TOKEN_KEYWORD_PRINT) {
         ASTNode * node = print_statement(parser);
         return node;
-        // return print_statement(parser);
     } else if (currToken->type == TOKEN_KEYWORD_WHILE) {
         ASTNode * whileNode = while_statement(parser);
         return whileNode;
-        // return while_statement(parser);
     } else if (currToken->type == TOKEN_KEYWORD_FOR) {
         ASTNode * forNode = for_statement(parser);
         return forNode;
-        // return for_statement(parser);
     } else if (currToken->type == TOKEN_LBRACE) {
         return block(parser);
     } else {
