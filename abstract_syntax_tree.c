@@ -666,13 +666,13 @@ void free_node(ASTNode *node) {
  */
 
 ASTNode *create_while_node(ASTNode *condition, ASTNode *body) {
-    // Vérification des paramètres
+    // Verify parameters
     if (!condition || !body) {
         fprintf(stderr, "Error: Invalid parameters passed to create_while_node.\n");
         return NULL;
     }
 
-    // Allocation mémoire pour le nœud WhileNode
+    // Allocate memory for WhileNode structure
     WhileNode *whileNode = malloc(sizeof(WhileNode));
     if (!whileNode) {
         fprintf(stderr, "Memory allocation failed for WhileNode.\n");
@@ -696,8 +696,8 @@ ASTNode *create_while_node(ASTNode *condition, ASTNode *body) {
     node->node = malloc(sizeof(NodeUnion));
     if (!node->node) {
         fprintf(stderr, "Memory allocation failed for NodeUnion.\n");
-        free(whileNode); // Libération mémoire pour WhileNode
-        free(node);      // Libération mémoire pour ASTNode
+        free(whileNode);
+        free(node);
         return NULL;
     }
 

@@ -419,36 +419,36 @@ ASTNode * statements_list(Parser * parser){
  */
 
 ASTNode *while_statement(Parser *parser) {
-    // Consomme le mot-clé 'while'
+    // Consume 'while' reserved keyword
     consume_token(parser, TOKEN_KEYWORD_WHILE);
 
-    // Consomme le parenthèse ouvrante '('
+    // Consume token representing '(' parenthesis
     consume_token(parser, TOKEN_LPAREN);
 
-    // Analyse la condition de la boucle
+    // Analyse while condition
     ASTNode *condition = expr(parser);
     if (!condition) {
         fprintf(stderr, "Error: Failed to parse condition in while_statement.\n");
         exit(EXIT_FAILURE);
     }
 
-    // Vérifie que la condition n'est pas un EMPTY_NODE
+    // Verify that condition isn't empty
     if (condition->type == EMPTY_NODE) {
         fprintf(stderr, "Error: Condition in while loop is invalid (EMPTY_NODE).\n");
         exit(EXIT_FAILURE);
     }
 
-    // Consomme le parenthèse fermante ')'
+    // Consume right parenthesis ')'
     consume_token(parser, TOKEN_RPAREN);
 
-    // Analyse le corps de la boucle
+    // Analyse body
     ASTNode *body = statement(parser);
     if (!body) {
         fprintf(stderr, "Error: Failed to parse body in while_statement.\n");
         exit(EXIT_FAILURE);
     }
 
-    // Vérifie que le corps n'est pas un EMPTY_NODE
+    // Verify that body isn't empty
     if (body->type == EMPTY_NODE) {
         fprintf(stderr, "Error: Body of while loop is invalid (EMPTY_NODE).\n");
         exit(EXIT_FAILURE);
@@ -552,7 +552,7 @@ ASTNode * block(Parser * parser) {
 
     consume_token(parser, TOKEN_LBRACE);
 
-    // Initialise la liste des instructions
+    // Initialise list of statements node
     unsigned short capacity = 10;
     unsigned short size = 0;
     ASTNode **statements = malloc(capacity * sizeof(ASTNode *));
@@ -563,7 +563,7 @@ ASTNode * block(Parser * parser) {
 
     while (parser->current_token->type != TOKEN_RBRACE) {
 
-        // Ignore les points-virgules isolés
+        // Ignore isolated ;
         if (parser->current_token->type == TOKEN_SEMI_COLON) {
             consume_token(parser, TOKEN_SEMI_COLON);
             continue;
@@ -588,9 +588,7 @@ ASTNode * block(Parser * parser) {
         }
     }
 
-    
     consume_token(parser, TOKEN_RBRACE);
 
- 
     return create_statements_node_list(statements, capacity, size);
 }

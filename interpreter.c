@@ -222,7 +222,7 @@ int *visit_var_node(Interpreter *interpreter, ASTNode *node)
     char *varName = node->node->variableNode->varToken->value.strValue;
     GLOBAL_SCOPE *global_scope = interpreter->global_scope;
     VariableScope *varScopeFound = find_variable_in_global_scope(global_scope, varName);
-    if (varScopeFound && varScopeFound->value.intValue)
+    if (varScopeFound)
     {
         int value = varScopeFound->value.intValue;
         int *var_value = malloc(sizeof(int));
