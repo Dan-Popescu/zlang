@@ -18,7 +18,9 @@ typedef enum {
     ASSIGNMENT_NODE,
     EMPTY_NODE,
     PRINT_NODE,
-    STATEMENTS_LIST_NODE
+    STATEMENTS_LIST_NODE,
+    WHILE_NODE,
+    FOR_NODE
 } NodeType;
 
 typedef struct NumberNode NumberNode;
@@ -30,6 +32,8 @@ typedef struct PrintNode PrintNode;
 typedef struct StatementsListNode StatementsListNode;
 typedef struct EmptyNode EmptyNode;
 typedef struct ASTNode ASTNode;
+typedef struct WhileNode WhileNode; 
+typedef struct ForNode ForNode;
 
 typedef union{
     NumberNode * numNode;
@@ -40,6 +44,8 @@ typedef union{
     PrintNode * printNode;
     StatementsListNode * stmtListNode;
     EmptyNode * emptyNode;
+    WhileNode * whileNode;
+    ForNode * forNode;
 } NodeUnion;
 
 struct ASTNode {
@@ -87,6 +93,19 @@ struct PrintNode{
 struct EmptyNode{};
 
 
+struct WhileNode {
+    ASTNode * condition;
+    ASTNode * body;
+}; 
+
+ 
+struct ForNode{
+    ASTNode *initialisation;
+    ASTNode *condition;
+    ASTNode *incrementation;
+    ASTNode *body;
+};
+
 ASTNode * create_number_node(TokenType tokenType, ValueType valueType, int value);
 ASTNode * create_binary_operator_node(Token * opToken, ASTNode * left, ASTNode * right );
 ASTNode * create_unary_operator_node(Token * token, ASTNode * expression);
@@ -95,6 +114,9 @@ ASTNode * create_assignment_node(ASTNode * left, Token * assignmentToken, ASTNod
 ASTNode * create_print_node(ASTNode * exprNode);
 ASTNode * create_statements_node_list(ASTNode ** nodes, unsigned short capacity, unsigned short size);
 ASTNode * create_empty_node();
+ASTNode * create_while_node(ASTNode *condition, ASTNode *body);
+ASTNode * create_for_node(ASTNode * initialisation, ASTNode * condition, ASTNode *incrementation, ASTNode *body);
+ 
 void free_node(ASTNode * node);
 void free_statements_list_node(ASTNode * node);
 void free_assignment_node(ASTNode * node);
@@ -103,5 +125,6 @@ void free_variable_node(ASTNode * node);
 void free_print_node(ASTNode * node);
 void free_unary_operator_node(ASTNode * node);
 void free_binary_operator_node(ASTNode * node);
-
-#endif //ZLANG_ABSTRACT_SYNTAX_TREE_H
+void free_for_node(ASTNode * node);
+void free_while_node(ASTNode * node);
+#endif //ZLANG_ABSTRACT_SYNTAX_TREE_H;

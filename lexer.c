@@ -12,6 +12,15 @@
 #include <math.h>
 
 
+
+/**
+ *
+ * Initializes a Lexer with the input text, starting position, and the first character.
+ *
+ * @param text - The source code text to tokenize.
+ * @return - A pointer to the created Lexer.
+ */
+
 Lexer * create_lexer(char *text){
     Lexer * lexer = (Lexer *)malloc(sizeof(Lexer));
     lexer->text = calloc(strlen(text) + 1, sizeof(char));
@@ -20,6 +29,15 @@ Lexer * create_lexer(char *text){
     lexer->current_char = lexer->text[lexer->pos];
     return lexer;
 };
+
+
+
+/**
+ *
+ * Frees the memory allocated for the Lexer, including its text buffer.
+ *
+ * @param lexer - The Lexer to free.
+ */
 
 void free_lexer(Lexer * lexer){
     if(lexer == NULL) return;
@@ -31,13 +49,25 @@ void free_lexer(Lexer * lexer){
 }
 
 /**
- * Function for advancing lexer position to next character from which to start extracting next token
+ *
+ * Moves the Lexer's position to the next character in the text.
+ *
+ * @param lexer - The Lexer being advanced.
  */
+
 
 void advance(Lexer * lexer){
     lexer->pos++;
     lexer->current_char = lexer->text[lexer->pos];
 }
+
+
+/**
+ *
+ * Advances the Lexer's position to skip over whitespace characters.
+ *
+ * @param lexer - The Lexer performing the operation.
+ */
 
 void skip_whitespace(Lexer * lexer){
     while(lexer->current_char != '\0' && isspace(lexer->current_char)){
@@ -45,7 +75,15 @@ void skip_whitespace(Lexer * lexer){
     }
 }
 
-// Get integer value of next token as integer
+
+/**
+ *
+ * Parses and returns the next integer value from the Lexer's text.
+ *
+ * @param lexer - The Lexer performing the operation.
+ * @return - The integer value parsed.
+ */
+
 int integer(Lexer * lexer){
     int result = 0;
     while(lexer->current_char != '\0'  && isdigit(lexer->current_char)){
@@ -54,6 +92,18 @@ int integer(Lexer * lexer){
     }
     return result;
 }
+
+
+/**
+ *
+ * Creates a token with the specified type, value type, and value.
+ * Handles validation and memory allocation for the token.
+ *
+ * @param type - The type of the token (e.g., identifier, operator, etc.).
+ * @param valueType - The type of the token's value (e.g., INT, STRING).
+ * @param valueString - The string representation of the token's value.
+ * @return - A pointer to the created Token.
+ */
 
 Token * create_token(TokenType type, ValueType valueType, char * valueString){
     Token * token = (Token *)malloc(sizeof(Token));
@@ -116,13 +166,21 @@ Token * create_token(TokenType type, ValueType valueType, char * valueString){
     return token;
 }
 
+
+/**
+ *
+ * Creates a list of reserved keywords (e.g., `print`, `while`, `for`) with their corresponding token types.
+ *
+ * @return - A pointer to the initialized RESERVED_KEYWORDS structure.
+ */
+
 RESERVED_KEYWORDS * initialize_reserved_keywords(){
     RESERVED_KEYWORDS * reservedKeywords = malloc(sizeof (RESERVED_KEYWORDS));
-    reservedKeywords->size = 1;
+    reservedKeywords->size = 3;
     reservedKeywords->keywords = malloc(reservedKeywords->size * sizeof(RESERVED_KEYWORD * ));
 
-    const char * lexemes[] = {"print"};
-    TokenType tokenTypes[] = { TOKEN_KEYWORD_PRINT};
+    const char * lexemes[] = {"print","while","for"};
+    TokenType tokenTypes[] = { TOKEN_KEYWORD_PRINT, TOKEN_KEYWORD_WHILE, TOKEN_KEYWORD_FOR};
 
     for(unsigned long i = 0; i < reservedKeywords->size; ++i){
         reservedKeywords->keywords[i] = malloc(sizeof(RESERVED_KEYWORD));
@@ -141,6 +199,14 @@ RESERVED_KEYWORDS * initialize_reserved_keywords(){
     return reservedKeywords;
 }
 
+
+/**
+ *
+ * Frees the memory allocated for the RESERVED_KEYWORDS structure, including its tokens.
+ *
+ * @param reservedKeywords - The RESERVED_KEYWORDS structure to free.
+ */
+
 void free_reserved_keywords(RESERVED_KEYWORDS * reservedKeywords){
     for (unsigned short i = 0; i < reservedKeywords->size; i++) {
         RESERVED_KEYWORD * keyword = reservedKeywords->keywords[i];
@@ -157,6 +223,15 @@ void free_reserved_keywords(RESERVED_KEYWORDS * reservedKeywords){
     free(reservedKeywords);
     reservedKeywords = NULL;
 }
+
+
+/**
+ *
+ * Parses and returns an identifier or reserved keyword token from the Lexer's text.
+ *
+ * @param lexer - The Lexer performing the operation.
+ * @return - A Token representing the identifier or reserved keyword.
+ */
 
 Token * identifier(Lexer * lexer) {
     unsigned short capacity = 10;
@@ -214,7 +289,15 @@ Token * identifier(Lexer * lexer) {
     return token;
 }
 
-// Get next token
+/**
+ *
+ * Retrieves the next token from the Lexer's text, identifying its type and value.
+ * Handles different token types, including numbers, operators, and keywords.
+ *
+ * @param lexer - The Lexer performing the operation.
+ * @return - A Token representing the next lexical unit.
+ */
+
 Token * get_next_token(Lexer * lexer){
     while(lexer->current_char != '\0'){
         if(isspace(lexer->current_char)){
@@ -274,11 +357,39 @@ Token * get_next_token(Lexer * lexer){
             return create_token(TOKEN_SEMI_COLON, CHAR, ";");
         }
 
+        if (lexer->current_char == '<') {
+            advance(lexer);
+            return create_token(TOKEN_OPERATOR_LESS_THAN, CHAR, "<");
+        }
+
+        if (lexer->current_char == '>') {
+            advance(lexer);
+            return create_token(TOKEN_OPERATOR_GREATER_THAN, CHAR, ">");
+        }
+                
+        if (lexer->current_char == '{') {
+            advance(lexer);
+            return create_token(TOKEN_LBRACE, CHAR, "{");
+        }
+
+        if (lexer->current_char == '}') {
+            advance(lexer);
+            return create_token(TOKEN_RBRACE, CHAR, "}");
+        }
+
+
         printf("\nError : Invalid character : %c\n", lexer->current_char);
         exit(EXIT_FAILURE);
     }
     return create_token(TOKEN_EOF, INT, "-1");
 }
+
+/**
+ *
+ * Frees the memory allocated for a Token, including its value if it is a string.
+ *
+ * @param token - The Token to free.
+ */
 
 void free_token(Token * token){
     if(token == NULL) return;
