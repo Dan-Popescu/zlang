@@ -57,8 +57,6 @@ int main(int argc, char ** argv) {
             ASTNode * tree = statements_list(parser);
 
             int * res_val = interpret(interpreter, tree);
-//            printf("\n Value is : %d", *value);
-//            printf("%d", value);
 
 //            display_global_scope_variables(global_scope);
 
