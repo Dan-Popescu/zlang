@@ -108,25 +108,29 @@ ASTNode * factor(Parser * parser){
         consume_token(parser, TOKEN_OPERATOR_PLUS);
         ASTNode * expression = factor(parser);
         ASTNode * node = create_unary_operator_node(token, expression);
+        free(token);
         return node;
     }if(token->type == TOKEN_OPERATOR_MINUS){
         consume_token(parser, TOKEN_OPERATOR_MINUS);
         ASTNode * expression = factor(parser);
         ASTNode * node = create_unary_operator_node(token, expression);
+        free(token);
         return node;
     }else if(token->type == TOKEN_NUMBER){
-//        int value = token->value;
         int value = token->value.intValue;
         consume_token(parser, TOKEN_NUMBER);
         ASTNode * node = create_number_node(TOKEN_NUMBER, INT, value);
+        free(token);
         return node;
     }else if(token->type == TOKEN_LPAREN){
         consume_token(parser, TOKEN_LPAREN);
         ASTNode * result = expr(parser);
         consume_token(parser, TOKEN_RPAREN);
+        free(token);
         return result;
     }else if(token->type == TOKEN_IDENTIFIER){
         ASTNode * varNode = variable(parser);
+        free(token);
         return varNode;
     }else{
         fprintf(stderr, "No factor could be parsed based on token type of value : %d", token->type);
@@ -340,11 +344,11 @@ ASTNode * statements_list(Parser * parser){
             nodes[size] = new_stmt_node;
             ++size;
         }
-
     }
 
     // create a single ASTNode representing the entire statements node list
     ASTNode * stmtListNode = create_statements_node_list(nodes, capacity, size);
+    free(nodes);
 
     return stmtListNode;
 }

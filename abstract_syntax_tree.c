@@ -23,6 +23,8 @@ ASTNode * create_number_node(TokenType tokenType, ValueType valueType, int value
     }
     sprintf(intStrValue, "%d", value);
     Token * token = create_token(tokenType, valueType, intStrValue);
+    free(intStrValue);
+
     if (token == NULL) {
         fprintf(stderr, "\nIn abstract_syntax_tree.c in function create_number_node: Failed to create token.\n");
         free(intStrValue);
@@ -347,23 +349,24 @@ void free_print_node(ASTNode * node){
 
 
 ASTNode * create_empty_node(){
-    EmptyNode * emptyNode = malloc(sizeof(EmptyNode *));
+    printf("Creating empty node");
+    EmptyNode * emptyNode = malloc(sizeof(EmptyNode));
     if(emptyNode == NULL){
-        fprintf(stderr, "\nIn abstract_syntax_tree.c in function create_empty_node Line 324 :"
+        fprintf(stderr, "\nIn abstract_syntax_tree.c in function create_empty_node Line 350 :"
                         "Memory allocation failed.");
         exit(EXIT_FAILURE);
     }
 
     ASTNode * node = malloc(sizeof(ASTNode));
     if(node == NULL){
-        fprintf(stderr, "\nIn abstract_syntax_tree.c in function create_empty_node Line 331 :"
+        fprintf(stderr, "\nIn abstract_syntax_tree.c in function create_empty_node Line 357 :"
                         "Memory allocation failed.");
         exit(EXIT_FAILURE);
     }
     node->type = EMPTY_NODE;
-    node->node = malloc(sizeof(NodeUnion *));
+    node->node = malloc(sizeof(NodeUnion));
     if(node->node == NULL){
-        fprintf(stderr, "\nIn abstract_syntax_tree.c in function create_empty_node Line 338 :"
+        fprintf(stderr, "\nIn abstract_syntax_tree.c in function create_empty_node Line 366 :"
                         "Memory allocation failed.");
         exit(EXIT_FAILURE);
     }
@@ -432,6 +435,7 @@ void free_statements_list_node(ASTNode * node){
     if(node->node->stmtListNode == NULL) return;
     unsigned short capacity = node->node->stmtListNode->capacity;
     unsigned short size = node->node->stmtListNode->size;
+
     if( capacity < 0 || size < 0){
         if(node->node->stmtListNode->nodes != NULL) free(node->node->stmtListNode->nodes);
         free(node->node->stmtListNode);
@@ -442,9 +446,6 @@ void free_statements_list_node(ASTNode * node){
     for(unsigned short idx = 0; idx < size; ++idx){
         ASTNode * node_to_free = node->node->stmtListNode->nodes[idx];
         if(node_to_free != NULL){
-//            printf("\n Freing the node with index from the statements list: %d", idx);
-//            printf("\n size of the node list is : %d", size);
-//            printf("\n capacity of the node list is : %d", capacity);
             free_node(node_to_free);
             node_to_free = NULL;
         }
@@ -456,6 +457,34 @@ void free_statements_list_node(ASTNode * node){
     free(node);
 
     return;
+}
+
+void free_empty_node(ASTNode * node){
+    printf("\nFreeing empty node");
+    if(node == NULL) return;
+    if(node->type != EMPTY_NODE) return;
+    if(node->node == NULL){
+        printf("\n Unexpected node->node is NULL");
+        free(node);
+        node = NULL;
+        return;
+    }
+    if(node->node->emptyNode == NULL){
+        printf("\n Unexpected node->node->emptyNode is NULL");
+        free(node->node);
+        node->node = NULL;
+        free(node);
+        node = NULL;
+        return;
+    }
+
+    free(node->node->emptyNode);
+    node->node->emptyNode = NULL;
+    free(node->node);
+    node->node = NULL;
+    free(node);
+    node = NULL;
+
 }
 
 void free_node(ASTNode * node){
@@ -481,6 +510,9 @@ void free_node(ASTNode * node){
             break;
         case STATEMENTS_LIST_NODE:
             free_statements_list_node(node);
+            break;
+        case EMPTY_NODE:
+            free_empty_node(node);
             break;
         default:
             fprintf(stderr, "\n In free_node : Error : invalid node cannot be deallocated");

@@ -177,14 +177,13 @@ Token * identifier(Lexer * lexer) {
         }
 
         // update size in case of the reallocation with capacity doubling
-        size= strlen(result);
+        size = strlen(result);
         // append character
         char * char_to_append = calloc(2, sizeof(char));
         char_to_append[0] = currChar;
         strcat(result, char_to_append);
-//        result[size] = currChar;
-//        printf("result : %s", result);
-        result[size+1] = '\0';
+        free(char_to_append);
+        char_to_append = NULL;
         advance(lexer);
     }
 
@@ -200,6 +199,7 @@ Token * identifier(Lexer * lexer) {
             strcpy(tokenStrValue, keywordStr);
 
             Token * keywordToken = create_token(tokenType, tokenValueType, tokenStrValue);
+            free(tokenStrValue);
 
             free_reserved_keywords(reservedKeywords);
             return keywordToken;
@@ -210,6 +210,7 @@ Token * identifier(Lexer * lexer) {
     }
 
     Token * token = create_token(TOKEN_IDENTIFIER, STRING, result);
+    free(result);
 
     return token;
 }
@@ -228,10 +229,11 @@ Token * get_next_token(Lexer * lexer){
 
         if(isdigit(lexer->current_char)){
             int value = integer(lexer);
-            char * intStrValue = calloc(4, sizeof(char));
+            char * intStrValue = calloc(10, sizeof(char));
             sprintf(intStrValue, "%d", value);
-//            return create_token(TOKEN_NUMBER, INT, integer(lexer));
-            return create_token(TOKEN_NUMBER, INT, intStrValue);
+            Token * token = create_token(TOKEN_NUMBER, INT, intStrValue);
+            free(intStrValue);
+            return token;
         }
 
         if(lexer->current_char == '='){

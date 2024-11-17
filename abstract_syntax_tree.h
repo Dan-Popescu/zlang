@@ -103,5 +103,6 @@ void free_variable_node(ASTNode * node);
 void free_print_node(ASTNode * node);
 void free_unary_operator_node(ASTNode * node);
 void free_binary_operator_node(ASTNode * node);
+void free_empty_node(ASTNode * node);
 
 #endif //ZLANG_ABSTRACT_SYNTAX_TREE_H
