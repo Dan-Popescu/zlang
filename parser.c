@@ -183,26 +183,26 @@ ASTNode *  expr(Parser * parser){
     while(parser->current_token->type == TOKEN_OPERATOR_LESS_THAN ||
           parser->current_token->type == TOKEN_OPERATOR_GREATER_THAN) {
 
-        // Création d'une copie du token actuel
+        // Creating a copy of the current token
         Token * token = malloc(sizeof(Token));
         token->type = parser->current_token->type;
         token->value = parser->current_token->value;
         token->valueType = parser->current_token->valueType;
 
-        // Consommer le token de comparaison
+        // Consume the comparison token
         if (token->type == TOKEN_OPERATOR_LESS_THAN) {
             consume_token(parser, TOKEN_OPERATOR_LESS_THAN);
         } else if (token->type == TOKEN_OPERATOR_GREATER_THAN) {
             consume_token(parser, TOKEN_OPERATOR_GREATER_THAN);
         }
 
-        // Analyse de l'expression à droite du comparateur
+        // Analyze the expression to the right of the comparator
         ASTNode * right = term(parser);
 
-        // Créer un nœud binaire pour le comparateur
+        // Create a binary node for the comparator
         ASTNode * node = create_binary_operator_node(token, left, right);
 
-        // Le nouveau nœud devient le côté gauche pour les prochains calculs
+        // The new node becomes the left side for subsequent calculations
         left = node;
     }
 
@@ -413,42 +413,42 @@ ASTNode * statements_list(Parser * parser){
  */
 
 ASTNode *while_statement(Parser *parser) {
-    // Consume 'while' reserved keyword
+    // Consume the 'while' keyword
     consume_token(parser, TOKEN_KEYWORD_WHILE);
 
-    // Consume token representing '(' parenthesis
+    // Consume the opening parenthesis '('
     consume_token(parser, TOKEN_LPAREN);
 
-    // Analyse while condition
+    // Analyze the loop condition
     ASTNode *condition = expr(parser);
     if (!condition) {
         fprintf(stderr, "Error: Failed to parse condition in while_statement.\n");
         exit(EXIT_FAILURE);
     }
 
-    // Verify that condition isn't empty
+    // Verify that the condition is not an EMPTY_NODE
     if (condition->type == EMPTY_NODE) {
         fprintf(stderr, "Error: Condition in while loop is invalid (EMPTY_NODE).\n");
         exit(EXIT_FAILURE);
     }
 
-    // Consume right parenthesis ')'
+    // Consume the closing parenthesis ')'
     consume_token(parser, TOKEN_RPAREN);
 
-    // Analyse body
+    // Analyze the body of the loop
     ASTNode *body = statement(parser);
     if (!body) {
         fprintf(stderr, "Error: Failed to parse body in while_statement.\n");
         exit(EXIT_FAILURE);
     }
 
-    // Verify that body isn't empty
+    // Verify that the body is not an EMPTY_NODE
     if (body->type == EMPTY_NODE) {
         fprintf(stderr, "Error: Body of while loop is invalid (EMPTY_NODE).\n");
         exit(EXIT_FAILURE);
     }
 
-    // Crée et retourne un nœud de type "while"
+    // Create and return a node of type "while"
     ASTNode *whileNode = create_while_node(condition, body);
     if (!whileNode) {
         fprintf(stderr, "Error: Failed to create while node.\n");
@@ -546,7 +546,7 @@ ASTNode * block(Parser * parser) {
 
     consume_token(parser, TOKEN_LBRACE);
 
-    // Initialise list of statements node
+    // Initialize the list of statements
     unsigned short capacity = 10;
     unsigned short size = 0;
     ASTNode **statements = malloc(capacity * sizeof(ASTNode *));
@@ -557,7 +557,7 @@ ASTNode * block(Parser * parser) {
 
     while (parser->current_token->type != TOKEN_RBRACE) {
 
-        // Ignore isolated ;
+        // Ignore isolated semicolons
         if (parser->current_token->type == TOKEN_SEMI_COLON) {
             consume_token(parser, TOKEN_SEMI_COLON);
             continue;

@@ -7,8 +7,7 @@
 #include <string.h>
 #include <limits.h>
 #include <math.h>
-
-
+#include <errno.h>
 
 /**
  *
@@ -18,16 +17,15 @@
  * @return - A pointer to the created Lexer.
  */
 
-Lexer * create_lexer(char *text){
-    Lexer * lexer = (Lexer *)malloc(sizeof(Lexer));
+Lexer *create_lexer(char *text)
+{
+    Lexer *lexer = (Lexer *)malloc(sizeof(Lexer));
     lexer->text = calloc(strlen(text) + 1, sizeof(char));
     strcpy(lexer->text, text);
     lexer->pos = 0;
     lexer->current_char = lexer->text[lexer->pos];
     return lexer;
 };
-
-
 
 /**
  *
@@ -36,10 +34,13 @@ Lexer * create_lexer(char *text){
  * @param lexer - The Lexer to free.
  */
 
-void free_lexer(Lexer * lexer){
-    if(lexer == NULL) return;
+void free_lexer(Lexer *lexer)
+{
+    if (lexer == NULL)
+        return;
     // free text
-    if(lexer->text != NULL){
+    if (lexer->text != NULL)
+    {
         free(lexer->text);
     }
     free(lexer);
@@ -52,12 +53,11 @@ void free_lexer(Lexer * lexer){
  * @param lexer - The Lexer being advanced.
  */
 
-
-void advance(Lexer * lexer){
+void advance(Lexer *lexer)
+{
     lexer->pos++;
     lexer->current_char = lexer->text[lexer->pos];
 }
-
 
 /**
  *
@@ -66,12 +66,13 @@ void advance(Lexer * lexer){
  * @param lexer - The Lexer performing the operation.
  */
 
-void skip_whitespace(Lexer * lexer){
-    while(lexer->current_char != '\0' && isspace(lexer->current_char)){
+void skip_whitespace(Lexer *lexer)
+{
+    while (lexer->current_char != '\0' && isspace(lexer->current_char))
+    {
         advance(lexer);
     }
 }
-
 
 /**
  *
@@ -81,15 +82,16 @@ void skip_whitespace(Lexer * lexer){
  * @return - The integer value parsed.
  */
 
-int integer(Lexer * lexer){
+int integer(Lexer *lexer)
+{
     int result = 0;
-    while(lexer->current_char != '\0'  && isdigit(lexer->current_char)){
+    while (lexer->current_char != '\0' && isdigit(lexer->current_char))
+    {
         result = result * 10 + (int)(lexer->current_char - '0');
         advance(lexer);
     }
     return result;
 }
-
 
 /**
  *
@@ -102,9 +104,11 @@ int integer(Lexer * lexer){
  * @return - A pointer to the created Token.
  */
 
-Token * create_token(TokenType type, ValueType valueType, char * valueString){
-    Token * token = (Token *)malloc(sizeof(Token));
-    if (token == NULL) {
+Token *create_token(TokenType type, ValueType valueType, char *valueString)
+{
+    Token *token = (Token *)malloc(sizeof(Token));
+    if (token == NULL)
+    {
         fprintf(stderr, "Memory allocation failed for token.\n");
         exit(EXIT_FAILURE);
     }
@@ -118,51 +122,58 @@ Token * create_token(TokenType type, ValueType valueType, char * valueString){
     token->value.charValue = 0;
     token->value.doubleValue = 0;
 
-
-    if(valueType == INT) {
+    if (valueType == INT)
+    {
         token->value.intValue = strtod(valueString, NULL);
         int value = token->value.intValue;
-        if(value == INT_MAX || value == INT_MIN ){
+        if (value == INT_MAX || value == INT_MIN)
+        {
             fprintf(stderr, "Value provided for token is out of bounds for INT type");
             exit(EXIT_FAILURE);
         }
     }
-    if(valueType == LONG) {
+    if (valueType == LONG)
+    {
         token->value.longValue = strtol(valueString, NULL, 10);
         long value = token->value.longValue;
-        if(value == LONG_MAX || value == LONG_MIN ){
+        if (value == LONG_MAX || value == LONG_MIN)
+        {
             fprintf(stderr, "Value provided for token is out of bounds for LONG type");
             exit(EXIT_FAILURE);
         }
     }
-    if(valueType == FLOAT) {
+    if (valueType == FLOAT)
+    {
         errno = 0;
         token->value.floatValue = strtof(valueString, NULL);
         float value = token->value.floatValue;
-        if(value == HUGE_VALF || value == -HUGE_VALF ){
+        if (value == HUGE_VALF || value == -HUGE_VALF)
+        {
             fprintf(stderr, "Value provided for token is out of bounds for FLOAT type");
             exit(EXIT_FAILURE);
         }
     }
-    if(valueType == DOUBLE) {
+    if (valueType == DOUBLE)
+    {
         errno = 0;
         token->value.doubleValue = strtod(valueString, NULL);
         float value = token->value.floatValue;
-        if(value == HUGE_VALF || value == -HUGE_VALF ){
+        if (value == HUGE_VALF || value == -HUGE_VALF)
+        {
             fprintf(stderr, "Value provided for token is out of bounds for FLOAT type");
             exit(EXIT_FAILURE);
         }
-
     }
-    if(valueType == CHAR) token->value.charValue = *valueString;
-    if(valueType == STRING){
+    if (valueType == CHAR)
+        token->value.charValue = *valueString;
+    if (valueType == STRING)
+    {
         token->value.strValue = calloc(strlen(valueString) + 1, sizeof(char));
         strcpy(token->value.strValue, valueString);
     }
 
     return token;
 }
-
 
 /**
  *
@@ -171,15 +182,17 @@ Token * create_token(TokenType type, ValueType valueType, char * valueString){
  * @return - A pointer to the initialized RESERVED_KEYWORDS structure.
  */
 
-RESERVED_KEYWORDS * initialize_reserved_keywords(){
-    RESERVED_KEYWORDS * reservedKeywords = malloc(sizeof (RESERVED_KEYWORDS));
+RESERVED_KEYWORDS *initialize_reserved_keywords()
+{
+    RESERVED_KEYWORDS *reservedKeywords = malloc(sizeof(RESERVED_KEYWORDS));
     reservedKeywords->size = 3;
-    reservedKeywords->keywords = malloc(reservedKeywords->size * sizeof(RESERVED_KEYWORD * ));
+    reservedKeywords->keywords = malloc(reservedKeywords->size * sizeof(RESERVED_KEYWORD *));
 
-    const char * lexemes[] = {"print","while","for"};
-    TokenType tokenTypes[] = { TOKEN_KEYWORD_PRINT, TOKEN_KEYWORD_WHILE, TOKEN_KEYWORD_FOR};
+    const char *lexemes[] = {"print", "while", "for"};
+    TokenType tokenTypes[] = {TOKEN_KEYWORD_PRINT, TOKEN_KEYWORD_WHILE, TOKEN_KEYWORD_FOR};
 
-    for(unsigned long i = 0; i < reservedKeywords->size; ++i){
+    for (unsigned long i = 0; i < reservedKeywords->size; ++i)
+    {
         reservedKeywords->keywords[i] = malloc(sizeof(RESERVED_KEYWORD));
         reservedKeywords->keywords[i]->token = malloc(sizeof(Token));
         reservedKeywords->keywords[i]->token->type = tokenTypes[i];
@@ -196,7 +209,6 @@ RESERVED_KEYWORDS * initialize_reserved_keywords(){
     return reservedKeywords;
 }
 
-
 /**
  *
  * Frees the memory allocated for the RESERVED_KEYWORDS structure, including its tokens.
@@ -204,14 +216,18 @@ RESERVED_KEYWORDS * initialize_reserved_keywords(){
  * @param reservedKeywords - The RESERVED_KEYWORDS structure to free.
  */
 
-void free_reserved_keywords(RESERVED_KEYWORDS * reservedKeywords){
-    for (unsigned short i = 0; i < reservedKeywords->size; i++) {
-        RESERVED_KEYWORD * keyword = reservedKeywords->keywords[i];
-        Token * keywordToken = reservedKeywords->keywords[i]->token;
-        if(keywordToken != NULL){
+void free_reserved_keywords(RESERVED_KEYWORDS *reservedKeywords)
+{
+    for (unsigned short i = 0; i < reservedKeywords->size; i++)
+    {
+        RESERVED_KEYWORD *keyword = reservedKeywords->keywords[i];
+        Token *keywordToken = reservedKeywords->keywords[i]->token;
+        if (keywordToken != NULL)
+        {
             free_token(reservedKeywords->keywords[i]->token);
         }
-        if(keyword != NULL){
+        if (keyword != NULL)
+        {
             free(keyword);
         }
     }
@@ -221,7 +237,6 @@ void free_reserved_keywords(RESERVED_KEYWORDS * reservedKeywords){
     reservedKeywords = NULL;
 }
 
-
 /**
  *
  * Parses and returns an identifier or reserved keyword token from the Lexer's text.
@@ -230,19 +245,25 @@ void free_reserved_keywords(RESERVED_KEYWORDS * reservedKeywords){
  * @return - A Token representing the identifier or reserved keyword.
  */
 
-Token * identifier(Lexer * lexer) {
+Token *identifier(Lexer *lexer)
+{
     unsigned short capacity = 10;
     char *result = calloc(capacity, sizeof(char));
-    while (lexer->current_char != ' ' && lexer->current_char != ';' && isalpha(lexer->current_char)) {
+    while (lexer->current_char != ' ' && lexer->current_char != ';' && isalpha(lexer->current_char))
+    {
         char currChar = lexer->current_char;
         long size = strlen(result);
-        if (size >= capacity - 1) {
+        if (size >= capacity - 1)
+        {
             char *newResult = calloc(capacity * 2, sizeof(char));
 
             // copy characters in the new extended string
-            for (int i = 0; i < capacity; ++i) {
-                if(i<=size) newResult[i] = result[i];
-                else newResult[i] = '\0';
+            for (int i = 0; i < capacity; ++i)
+            {
+                if (i <= size)
+                    newResult[i] = result[i];
+                else
+                    newResult[i] = '\0';
             }
             free(result);
             result = newResult;
@@ -251,7 +272,7 @@ Token * identifier(Lexer * lexer) {
         // update size in case of the reallocation with capacity doubling
         size = strlen(result);
         // append character
-        char * char_to_append = calloc(2, sizeof(char));
+        char *char_to_append = calloc(2, sizeof(char));
         char_to_append[0] = currChar;
         strcat(result, char_to_append);
         free(char_to_append);
@@ -260,28 +281,31 @@ Token * identifier(Lexer * lexer) {
     }
 
     // check if the identifier corresponds to any of the reserved keywords
-    RESERVED_KEYWORDS  * reservedKeywords = initialize_reserved_keywords();
-    for(unsigned short i = 0; i < reservedKeywords->size; ++i){
-        if(strcmp(reservedKeywords->keywords[i]->token->value.strValue, result)==0){
-            char * keywordStr = reservedKeywords->keywords[i]->token->value.strValue;
+    RESERVED_KEYWORDS *reservedKeywords = initialize_reserved_keywords();
+    for (unsigned short i = 0; i < reservedKeywords->size; ++i)
+    {
+        if (strcmp(reservedKeywords->keywords[i]->token->value.strValue, result) == 0)
+        {
+            char *keywordStr = reservedKeywords->keywords[i]->token->value.strValue;
             unsigned int tokenType = reservedKeywords->keywords[i]->token->type;
             unsigned int tokenValueType = reservedKeywords->keywords[i]->token->valueType;
-            char * tokenStrValue = calloc(strlen(keywordStr) + 1 ,
-                                                  sizeof(char));
+            char *tokenStrValue = calloc(strlen(keywordStr) + 1,
+                                         sizeof(char));
             strcpy(tokenStrValue, keywordStr);
 
-            Token * keywordToken = create_token(tokenType, tokenValueType, tokenStrValue);
+            Token *keywordToken = create_token(tokenType, tokenValueType, tokenStrValue);
             free(tokenStrValue);
 
             free_reserved_keywords(reservedKeywords);
             return keywordToken;
         }
     }
-    if(reservedKeywords != NULL){
+    if (reservedKeywords != NULL)
+    {
         free_reserved_keywords(reservedKeywords);
     }
 
-    Token * token = create_token(TOKEN_IDENTIFIER, STRING, result);
+    Token *token = create_token(TOKEN_IDENTIFIER, STRING, result);
     free(result);
 
     return token;
@@ -296,86 +320,102 @@ Token * identifier(Lexer * lexer) {
  * @return - A Token representing the next lexical unit.
  */
 
-Token * get_next_token(Lexer * lexer){
-    while(lexer->current_char != '\0'){
-        if(isspace(lexer->current_char)){
+Token *get_next_token(Lexer *lexer)
+{
+    while (lexer->current_char != '\0')
+    {
+        if (isspace(lexer->current_char))
+        {
             skip_whitespace(lexer);
             continue;
         }
 
-        if(isalpha(lexer->current_char)){
+        if (isalpha(lexer->current_char))
+        {
             return identifier(lexer);
         }
 
-        if(isdigit(lexer->current_char)){
+        if (isdigit(lexer->current_char))
+        {
             int value = integer(lexer);
-            char * intStrValue = calloc(10, sizeof(char));
+            char *intStrValue = calloc(10, sizeof(char));
             sprintf(intStrValue, "%d", value);
-            Token * token = create_token(TOKEN_NUMBER, INT, intStrValue);
+            Token *token = create_token(TOKEN_NUMBER, INT, intStrValue);
             free(intStrValue);
             return token;
         }
 
-        if(lexer->current_char == '='){
+        if (lexer->current_char == '=')
+        {
             advance(lexer);
             return create_token(TOKEN_OPERATOR_ASSIGNMENT, CHAR, "=");
         }
 
-        if(lexer->current_char == '+'){
+        if (lexer->current_char == '+')
+        {
             advance(lexer);
             return create_token(TOKEN_OPERATOR_PLUS, CHAR, "+");
         }
 
-        if(lexer->current_char == '-'){
+        if (lexer->current_char == '-')
+        {
             advance(lexer);
             return create_token(TOKEN_OPERATOR_MINUS, CHAR, "-");
         }
 
-        if(lexer->current_char == '*'){
+        if (lexer->current_char == '*')
+        {
             advance(lexer);
             return create_token(TOKEN_OPERATOR_MULT, CHAR, "*");
         }
 
-        if(lexer->current_char == '/'){
+        if (lexer->current_char == '/')
+        {
             advance(lexer);
             return create_token(TOKEN_OPERATOR_DIV, CHAR, "/");
         }
 
-        if(lexer->current_char == '('){
+        if (lexer->current_char == '(')
+        {
             advance(lexer);
             return create_token(TOKEN_LPAREN, CHAR, "(");
         }
 
-        if(lexer->current_char == ')'){
+        if (lexer->current_char == ')')
+        {
             advance(lexer);
             return create_token(TOKEN_RPAREN, CHAR, ")");
         }
 
-        if(lexer->current_char == ';'){
+        if (lexer->current_char == ';')
+        {
             advance(lexer);
             return create_token(TOKEN_SEMI_COLON, CHAR, ";");
         }
 
-        if (lexer->current_char == '<') {
+        if (lexer->current_char == '<')
+        {
             advance(lexer);
             return create_token(TOKEN_OPERATOR_LESS_THAN, CHAR, "<");
         }
 
-        if (lexer->current_char == '>') {
+        if (lexer->current_char == '>')
+        {
             advance(lexer);
             return create_token(TOKEN_OPERATOR_GREATER_THAN, CHAR, ">");
         }
-                
-        if (lexer->current_char == '{') {
+
+        if (lexer->current_char == '{')
+        {
             advance(lexer);
             return create_token(TOKEN_LBRACE, CHAR, "{");
         }
 
-        if (lexer->current_char == '}') {
+        if (lexer->current_char == '}')
+        {
             advance(lexer);
             return create_token(TOKEN_RBRACE, CHAR, "}");
         }
-
 
         printf("\nError : Invalid character : %c\n", lexer->current_char);
         exit(EXIT_FAILURE);
@@ -390,9 +430,12 @@ Token * get_next_token(Lexer * lexer){
  * @param token - The Token to free.
  */
 
-void free_token(Token * token){
-    if(token == NULL) return;
-    if(token->valueType == STRING && token->value.strValue != NULL) {
+void free_token(Token *token)
+{
+    if (token == NULL)
+        return;
+    if (token->valueType == STRING && token->value.strValue != NULL)
+    {
         free(token->value.strValue);
         token->value.strValue = NULL;
     }

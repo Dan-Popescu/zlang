@@ -306,15 +306,15 @@ int *visit_while_node(Interpreter *interpreter, ASTNode *node)
 
     while (*condition_value)
     {
-        free(condition_value); // Libérez la mémoire utilisée pour la condition précédente
+        // Free the memory used for the previous condition
+        free(condition_value); 
 
-        // Exécutez le corps de la boucle
+        // Execute the body of the loop
         visit_node(interpreter, whileNode->body);
 
-        // Réévaluez la condition
+        // Reevaluate the condition
         condition_value = visit_node(interpreter, whileNode->condition);
 
-        // Sécurité : assurez-vous que la condition n'est pas NULL
         if (condition_value == NULL)
         {
             fprintf(stderr, "Error: While loop condition returned NULL.\n");
@@ -322,10 +322,9 @@ int *visit_while_node(Interpreter *interpreter, ASTNode *node)
         }
     }
 
-    // Libérez la mémoire finale de la condition
     free(condition_value);
 
-    // Indiquez le succès
+   
     int *success = malloc(sizeof(int));
     if (success == NULL)
     {
@@ -670,3 +669,41 @@ void free_global_scope(GLOBAL_SCOPE *globalScope)
     free(globalScope->variables);
     free(globalScope);
 }
+// void interpret_file(const char * filepath){
+//     FILE * f = fopen(filepath, "r");
+//     if(f == NULL) {
+//         printf("\nUnable to open file.");
+//         exit(EXIT_FAILURE);
+//     }
+//
+//     char buffer[MAX_EXPRESSION_LENGTH] = {0};
+//     for(int i = 0; i < MAX_EXPRESSION_LENGTH; ++i){
+//         buffer[i] = '\0';
+//     }
+//     unsigned char inside_statement = 0;
+//     long charIdx = 0;
+//
+//     char c = getc(f);
+//     while( c != EOF){
+//
+//         buffer[charIdx] = c;
+//         ++charIdx;
+//
+//         if(c == ';'){
+//             // TODO : call to an evaluate_statement function that needs to be coded
+//
+//             // Reset buffer
+//             for(int i =0; i < MAX_EXPRESSION_LENGTH; ++i){
+//                 buffer[i] = '\0';
+//             }
+//         }else{
+//             // If the instruction is not yet complete add space, to make it easier to parse tokens later
+//             buffer[charIdx] = ' ';
+//             ++charIdx;
+//         }
+//
+//     }
+//
+//     fclose(f);
+// }        // Ensure that the condition is not NULL
+
