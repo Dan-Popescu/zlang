@@ -636,14 +636,12 @@ void free_empty_node(ASTNode *node)
         return;
     if (node->node == NULL)
     {
-        printf("\n Unexpected node->node is NULL");
         free(node);
         node = NULL;
         return;
     }
     if (node->node->emptyNode == NULL)
     {
-        printf("\n Unexpected node->node->emptyNode is NULL");
         free(node->node);
         node->node = NULL;
         free(node);

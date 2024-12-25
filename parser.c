@@ -247,7 +247,6 @@ ASTNode * variable(Parser * parser){
     currToken->type = parser->current_token->type;
     currToken->valueType = parser->current_token->valueType;
     currToken->value = parser->current_token->value;
-//    currToken->value.strValue = parser->current_token->value.strValue;
     currToken->value.strValue = calloc(strlen(parser->current_token->value.strValue)+1,
                                        sizeof(char));
     strcpy(currToken->value.strValue, parser->current_token->value.strValue);
@@ -285,8 +284,6 @@ ASTNode * assignment_statement(Parser * parser){
     ASTNode * right = expr(parser);
     ASTNode * assignmentNode =  create_assignment_node(left, token, right);
 
-//    consume_token(parser, TOKEN_SEMI_COLON);
-
     return assignmentNode;
 }
 
@@ -323,21 +320,11 @@ ASTNode * statement(Parser * parser) {
     
     Token * currToken = parser->current_token;
 
-//    // Gestion des points-virgules isolés
-//    if (currToken->type == TOKEN_SEMI_COLON) {
-//        printf("Skipping isolated semi-colon in statement.\n");
-//        consume_token(parser, TOKEN_SEMI_COLON);
-////        return create_empty_node();
-//        return NULL;
-//    }
-
     if (currToken->type == TOKEN_IDENTIFIER) {
         ASTNode * assignmentNode = assignment_statement(parser);
-//        consume_token(parser, TOKEN_SEMI_COLON);
         return assignmentNode;
     } else if (currToken->type == TOKEN_KEYWORD_PRINT) {
         ASTNode * node = print_statement(parser);
-//        consume_token(parser, TOKEN_SEMI_COLON);
         return node;
     } else if (currToken->type == TOKEN_KEYWORD_WHILE) {
         ASTNode * whileNode = while_statement(parser);
