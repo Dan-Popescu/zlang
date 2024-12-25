@@ -6,4 +6,4 @@ services:
     container_name: valgrind_c_container
     volumes:
       - .:/usr/src/app
-    stdin_open: true
+    command: ../build_and_run.sh

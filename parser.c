@@ -323,18 +323,21 @@ ASTNode * statement(Parser * parser) {
     
     Token * currToken = parser->current_token;
 
-    // Gestion des points-virgules isolés
-    if (currToken->type == TOKEN_SEMI_COLON) {
-        printf("Skipping isolated semi-colon in statement.\n");
-        consume_token(parser, TOKEN_SEMI_COLON);
-        return create_empty_node();
-    }
+//    // Gestion des points-virgules isolés
+//    if (currToken->type == TOKEN_SEMI_COLON) {
+//        printf("Skipping isolated semi-colon in statement.\n");
+//        consume_token(parser, TOKEN_SEMI_COLON);
+////        return create_empty_node();
+//        return NULL;
+//    }
 
     if (currToken->type == TOKEN_IDENTIFIER) {
         ASTNode * assignmentNode = assignment_statement(parser);
+//        consume_token(parser, TOKEN_SEMI_COLON);
         return assignmentNode;
     } else if (currToken->type == TOKEN_KEYWORD_PRINT) {
         ASTNode * node = print_statement(parser);
+//        consume_token(parser, TOKEN_SEMI_COLON);
         return node;
     } else if (currToken->type == TOKEN_KEYWORD_WHILE) {
         ASTNode * whileNode = while_statement(parser);
